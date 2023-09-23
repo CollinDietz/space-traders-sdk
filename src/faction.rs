@@ -1,4 +1,26 @@
-#[derive(Debug, PartialEq)]
+use serde_derive::Deserialize;
+
+#[derive(Debug, PartialEq, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Faction {
+    pub symbol: Factions,
+    pub name: String,
+    pub description: String,
+    pub headquarters: String,
+    pub traits: Vec<Trait>,
+    pub is_recruiting: bool,
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Trait {
+    pub symbol: String,
+    pub name: String,
+    pub description: String,
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+#[serde(rename_all = "UPPERCASE")]
 pub enum Factions {
     Cosmic,
     Void,
@@ -45,7 +67,7 @@ impl std::str::FromStr for Factions {
             "ANCIENTS" => Ok(Factions::Ancients),
             "SHADOW" => Ok(Factions::Shadow),
             "ETHEREAL" => Ok(Factions::Ethereal),
-            _ => Err("oops".to_string())
+            _ => Err("oops".to_string()),
         }
     }
 }
