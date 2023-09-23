@@ -5,38 +5,8 @@ mod tests {
     mod contract {
         use space_traders_api::contract::*;
 
-        #[test]
-        fn should_be_deserializable() {
-            let json_str = r#"
-         {
-            "id": "clmvdg7k7dap9s60coav75shp",
-            "factionSymbol": "COSMIC",
-            "type": "PROCUREMENT",
-            "terms": {
-               "deadline": "2023-09-30T01:48:20.149Z",
-               "payment": {
-                  "onAccepted": 23229,
-                  "onFulfilled": 113742
-               },
-               "deliver": [
-                  {
-                     "tradeSymbol": "ALUMINUM_ORE",
-                     "destinationSymbol": "X1-GM20-97222X",
-                     "unitsRequired": 8900,
-                     "unitsFulfilled": 0
-                  }
-               ]
-            },
-            "accepted": false,
-            "fulfilled": false,
-            "expiration": "2023-09-24T01:48:20.149Z",
-            "deadlineToAccept": "2023-09-24T01:48:20.149Z"
-         }
-         "#;
-
-            let actual: Contract = serde_json::from_str(json_str).unwrap();
-
-            let expected = Contract {
+        pub fn some_contract() -> Contract {
+            Contract {
                 id: string!("clmvdg7k7dap9s60coav75shp"),
                 faction: space_traders_api::faction::Factions::Cosmic,
                 contract_type: ContractType::Procurement,
@@ -57,7 +27,41 @@ mod tests {
                         units_fulfilled: 0,
                     }]),
                 },
-            };
+            }
+        }
+
+        #[test]
+        fn should_be_deserializable() {
+            let json_str = r#"
+                {
+                    "id": "clmvdg7k7dap9s60coav75shp",
+                    "factionSymbol": "COSMIC",
+                    "type": "PROCUREMENT",
+                    "terms": {
+                    "deadline": "2023-09-30T01:48:20.149Z",
+                    "payment": {
+                        "onAccepted": 23229,
+                        "onFulfilled": 113742
+                    },
+                    "deliver": [
+                        {
+                            "tradeSymbol": "ALUMINUM_ORE",
+                            "destinationSymbol": "X1-GM20-97222X",
+                            "unitsRequired": 8900,
+                            "unitsFulfilled": 0
+                        }
+                    ]
+                    },
+                    "accepted": false,
+                    "fulfilled": false,
+                    "expiration": "2023-09-24T01:48:20.149Z",
+                    "deadlineToAccept": "2023-09-24T01:48:20.149Z"
+                }
+                "#;
+
+            let actual: Contract = serde_json::from_str(json_str).unwrap();
+
+            let expected = some_contract();
 
             assert_eq!(expected, actual);
         }

@@ -767,7 +767,7 @@ mod tests {
                     some_cargo_hold(),
                     some_cargo_hold(),
                     some_crew_quarters(),
-                    some_crew_quarters(),
+                    some_mineral_processor(),
                     some_mineral_processor(),
                     some_jump_drive(),
                     some_warp_drive(),
