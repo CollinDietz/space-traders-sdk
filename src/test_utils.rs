@@ -34,7 +34,7 @@ impl _OrderedJsonObject {
 #[macro_export]
 macro_rules! ordered_json {
     ($($key:expr => $value:expr),*) => {{
-        let mut ordered_obj = crate::utils::_OrderedJsonObject::_new();
+        let mut ordered_obj = crate::test_utils::_OrderedJsonObject::_new();
         $(ordered_obj._add_field($key, $value.to_string());)*
         ordered_obj._to_json_string()
     }};
