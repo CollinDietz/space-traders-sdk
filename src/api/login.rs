@@ -7,6 +7,8 @@ use crate::contract::Contract;
 use crate::faction::{Faction, Factions};
 use crate::ship::Ship;
 
+const REAL_SERVER: &'static str = "https://api.spacetraders.io/v2";
+
 #[derive(Debug, PartialEq, Serialize)]
 pub struct RegistrationRequest {
     #[serde(rename = "symbol")]
@@ -29,11 +31,55 @@ pub struct LoginResponse {
 }
 
 impl Api {
-    pub async fn register(&self, request: RegistrationRequest) -> Result<LoginResponse, Error> {
-        self.post(&"register".to_string(), &request)
-            .await?
-            .json()
-            .await
+    async fn register_internal(
+        url: String,
+        request: RegistrationRequest,
+    ) -> Result<(Self, LoginData), Error> {
+        let api = Api {
+            client: reqwest::Client::new(),
+            url: url,
+            token: "".to_string(),
+        };
+
+        let response: LoginResponse = api.post("register", &request).await?.json().await?;
+
+        Ok((
+            Api {
+                token: response.data.token.clone(),
+                ..api.clone()
+            },
+            response.data,
+        ))
+    }
+
+    pub async fn register(request: RegistrationRequest) -> Result<(Self, LoginData), Error> {
+        Api::register_internal(REAL_SERVER.to_string(), request).await
+    }
+
+    pub async fn login_internal(url: String, token: String) -> Result<(Self, LoginData), Error> {
+        let _api = Api {
+            client: reqwest::Client::new(),
+            url: url,
+            token: token,
+        };
+
+        let _login_data: LoginData = LoginData {
+            agent: todo!(),
+            contract: todo!(),
+            faction: todo!(),
+            ship: todo!(),
+            token: token,
+        };
+
+        Ok((_api, _login_data))
+    }
+
+    #[cfg(test)]
+    pub async fn register_test(
+        url: String,
+        request: RegistrationRequest,
+    ) -> Result<(Self, LoginData), Error> {
+        Api::register_internal(url, request).await
     }
 }
 
@@ -51,15 +97,19 @@ pub mod tests {
     use crate::ship::tests::some_ship;
     use crate::string;
 
-    fn some_login_response() -> LoginResponse {
-        LoginResponse {
-                data: LoginData {
+    fn some_login_data() -> LoginData {
+        LoginData {
                 agent: some_agent(),
                 contract: some_contract(),
                 faction: some_faction(),
                 ship: some_ship(),
                 token: string!("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZGVudGlmaWVyIjoiVEhJU0lTQVRFU1Q4ODgiLCJ2ZXJzaW9uIjoidjIiLCJyZXNldF9kYXRlIjoiMjAyMy0wOS0xNiIsImlhdCI6MTY5NTQzMzcwMCwic3ViIjoiYWdlbnQtdG9rZW4ifQ.Myu64GjY0OGWwyqn9q9nrKvJigGFHRvWKCboqror_iV3l-uJAUYAaMs7Dz2YhxhnGSlAEJ_B1uzbFRuE2YL1zVmpwQG2Jqou_YQk97vHwPhKyN7A7Ot_OcIbYTxLMR4GtVaSCSsGaRA0QQy-ive9YeZUWCkRf3tDSfSCEbhNMjbqeNxM9Mpy5WFiJIRvf9f9RvjApVBYGM4FikoXsCLeSskO8bntiYkEGYEhIH7EwGYQCKLXSzetrhVLF2YMzgDHM9nHB8OI2cth-3bqExmltLCmgJl_17b0ee0HhnY3BgIZ4D0qHRZFCoI1eGx4u8LhE14TpHXewkW4SCedlzVuMg"),
             }
+    }
+
+    fn some_login_response() -> LoginResponse {
+        LoginResponse {
+            data: some_login_data(),
         }
     }
 
@@ -67,15 +117,16 @@ pub mod tests {
     async fn request_should_be_sent_parsed_and_returned() {
         let mock_server = mock_response(RequestMethod::Post, "register", 201);
 
-        let api = Api::test(mock_server.url());
-
         let request: RegistrationRequest = RegistrationRequest {
             callsign: string!("SOMEPLAYER"),
             faction: Factions::Aegis,
         };
 
-        let actual: LoginResponse = api.register(request).await.unwrap();
-        let expected = some_login_response();
+        let (_, actual) = Api::register_test(mock_server.url(), request)
+            .await
+            .unwrap();
+
+        let expected = some_login_data();
 
         assert_eq!(expected, actual)
     }
