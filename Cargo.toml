@@ -1,3 +1,6 @@
+[workspace]
+members = ["./", "mock_server"]
+
 [package]
 name = "space_traders_api"
 version = "0.1.0"
@@ -14,3 +17,5 @@ tokio = {version = "1.32.0", features = ["full"]}
 
 [dev-dependencies]
 lazy_static = "1.4.0"
+mock_server = { path = "mock_server" }
+ 
