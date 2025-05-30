@@ -61,7 +61,7 @@ pub enum ResourceType {
     AluminumOre,
     GoldOre,
     PlatinumOre,
-    Diamond,
+    Diamonds,
     UraniteOre,
     MeritiumOre,
 }
@@ -197,6 +197,70 @@ pub mod tests {
 
         let actual: Mount = serde_json::from_str(json_str).unwrap();
         let expected = some_surveyor();
+
+        assert_eq!(expected, actual);
+    }
+
+    pub fn some_surveyor_2() -> Mount {
+        Mount {
+          symbol: MountType::SurveyorII,
+          name: string!("Surveyor II"),
+          description: Some(string!("An advanced survey probe that can be used to gather information about a mineral deposit with greater accuracy.")),
+          strength: Some(2),
+          deposits: Some(vec![
+              ResourceType::QuartzSand,
+              ResourceType::SiliconCrystals,
+              ResourceType::PreciousStones,
+              ResourceType::IceWater,
+              ResourceType::AmmoniaIce,
+              ResourceType::IronOre,
+              ResourceType::CopperOre,
+              ResourceType::SilverOre,
+              ResourceType::AluminumOre,
+              ResourceType::GoldOre,
+              ResourceType::PlatinumOre,
+              ResourceType::Diamonds,
+              ResourceType::UraniteOre,
+          ]),
+          requirements: Requirements {
+              power: Some(3),
+              crew: Some(4),
+              slots: None,
+          },
+      }
+    }
+
+    #[test]
+    fn surveyor_2_should_be_deserializable() {
+        let json_str = r#"
+          {
+            "symbol": "MOUNT_SURVEYOR_II",
+            "name": "Surveyor II",
+            "description": "An advanced survey probe that can be used to gather information about a mineral deposit with greater accuracy.",
+            "requirements": {
+              "power": 3,
+              "crew": 4
+            },
+            "strength": 2,
+            "deposits": [
+              "QUARTZ_SAND",
+              "SILICON_CRYSTALS",
+              "PRECIOUS_STONES",
+              "ICE_WATER",
+              "AMMONIA_ICE",
+              "IRON_ORE",
+              "COPPER_ORE",
+              "SILVER_ORE",
+              "ALUMINUM_ORE",
+              "GOLD_ORE",
+              "PLATINUM_ORE",
+              "DIAMONDS",
+              "URANITE_ORE"
+            ]
+          }"#;
+
+        let actual: Mount = serde_json::from_str(json_str).unwrap();
+        let expected = some_surveyor_2();
 
         assert_eq!(expected, actual);
     }
