@@ -75,10 +75,10 @@ pub mod tests {
             registration: some_registration(),
             nav: some_nav(),
             crew: some_crew(),
-            frame: some_frame(),
-            reactor: some_reactor(),
-            engine: some_engine(),
-            cooldown: some_cooldown(),
+            frame: some_frigate_frame(),
+            reactor: some_fission_reactor(),
+            engine: some_ion_drive_2(),
+            cooldown: some_cooldown(string!("BADGER-1")),
             modules: vec![
                 some_cargo_hold_2(),
                 some_crew_quarters(),
@@ -86,7 +86,12 @@ pub mod tests {
                 some_mineral_processor(),
                 some_gas_processor(),
             ],
-            mounts: vec![some_sensor_array_2(), some_gas_siphon_2(), some_mining_laser_2(), some_surveyor_2()],
+            mounts: vec![
+                some_sensor_array_2(),
+                some_gas_siphon_2(),
+                some_mining_laser_2(),
+                some_surveyor_2(),
+            ],
             cargo: some_cargo(),
             fuel: some_fuel(),
         }
@@ -310,5 +315,143 @@ pub mod tests {
         let expected = some_ship();
 
         assert_eq!(expected, actual);
+    }
+
+    pub fn some_other_ship() -> Ship {
+        Ship {
+            symbol: string!("BADGER-2"),
+            registration: some_other_registration(),
+            nav: some_other_nav(),
+            crew: empty_crew(),
+            frame: some_probe_frame(),
+            reactor: some_solar_reactor(),
+            engine: some_impluse_drive(),
+            cooldown: some_cooldown(string!("BADGER-2")),
+            modules: vec![],
+            mounts: vec![],
+            cargo: no_capacity_cargo(),
+            fuel: empty_fuel(),
+        }
+    }
+
+    #[test]
+    fn other_ships_should_be_deserializable() {
+        let json_str = r#"
+      {
+        "symbol": "BADGER-2",
+        "registration": {
+          "name": "BADGER-2",
+          "factionSymbol": "COSMIC",
+          "role": "SATELLITE"
+        },
+        "nav": {
+          "systemSymbol": "X1-RC42",
+          "waypointSymbol": "X1-RC42-H53",
+          "route": {
+            "destination": {
+              "symbol": "X1-RC42-H53",
+              "type": "MOON",
+              "systemSymbol": "X1-RC42",
+              "x": -9,
+              "y": -45
+            },
+            "origin": {
+              "symbol": "X1-RC42-H53",
+              "type": "MOON",
+              "systemSymbol": "X1-RC42",
+              "x": -9,
+              "y": -45
+            },
+            "departureTime": "2025-05-29T22:47:42.923Z",
+            "arrival": "2025-05-29T22:47:42.923Z"
+          },
+          "status": "DOCKED",
+          "flightMode": "CRUISE"
+        },
+        "crew": {
+          "current": 0,
+          "required": 0,
+          "capacity": 0,
+          "rotation": "STRICT",
+          "morale": 100,
+          "wages": 0
+        },
+        "frame": {
+          "symbol": "FRAME_PROBE",
+          "name": "Probe",
+          "condition": 1,
+          "integrity": 1,
+          "description": "A small, unmanned spacecraft used for exploration, reconnaissance, and scientific research.",
+          "moduleSlots": 0,
+          "mountingPoints": 0,
+          "fuelCapacity": 0,
+          "requirements": {
+            "power": 1,
+            "crew": 0
+          },
+          "quality": 1
+        },
+        "reactor": {
+          "symbol": "REACTOR_SOLAR_I",
+          "name": "Solar Reactor I",
+          "condition": 1,
+          "integrity": 1,
+          "description": "A basic solar power reactor, used to generate electricity from solar energy.",
+          "powerOutput": 3,
+          "requirements": {
+            "crew": 0
+          },
+          "quality": 1
+        },
+        "engine": {
+          "symbol": "ENGINE_IMPULSE_DRIVE_I",
+          "name": "Impulse Drive I",
+          "condition": 1,
+          "integrity": 1,
+          "description": "A basic low-energy propulsion system that generates thrust for interplanetary travel.",
+          "speed": 9,
+          "requirements": {
+            "power": 1,
+            "crew": 0
+          },
+          "quality": 1
+        },
+        "modules": [],
+        "mounts": [],
+        "cargo": {
+          "capacity": 0,
+          "units": 0,
+          "inventory": []
+        },
+        "fuel": {
+          "current": 0,
+          "capacity": 0,
+          "consumed": {
+            "amount": 0,
+            "timestamp": "2025-05-29T22:47:42.923Z"
+          }
+        },
+        "cooldown": {
+          "shipSymbol": "BADGER-2",
+          "totalSeconds": 0,
+          "remainingSeconds": 0
+        }
+      }"#;
+
+        let actual: Ship = serde_json::from_str(json_str).unwrap();
+        let expected = some_other_ship();
+
+        assert_eq!(expected.cargo, actual.cargo);
+        assert_eq!(expected.cooldown, actual.cooldown);
+        assert_eq!(expected.crew, actual.crew);
+        assert_eq!(expected.engine, actual.engine);
+        assert_eq!(expected.frame, actual.frame);
+        assert_eq!(expected.fuel, actual.fuel);
+        assert_eq!(expected.modules, actual.modules);
+        assert_eq!(expected.mounts, actual.mounts);
+        assert_eq!(expected.nav, actual.nav);
+        assert_eq!(expected.reactor, actual.reactor);
+        assert_eq!(expected.registration, actual.registration);
+        assert_eq!(expected.symbol, actual.symbol);
     }
 }

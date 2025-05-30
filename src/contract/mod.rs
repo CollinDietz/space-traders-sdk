@@ -57,23 +57,23 @@ pub mod tests {
 
     pub fn some_contract() -> Contract {
         Contract {
-            id: string!("clmvdg7k7dap9s60coav75shp"),
+            id: string!("cmb9ysth4mqyfuo6x6jh4jk9w"),
             faction: Factions::Cosmic,
             contract_type: ContractType::Procurement,
             accepted: false,
             fulfilled: false,
-            _deprecated: string!("2023-09-24T01:48:20.149Z"),
-            deadline_to_accept: Some(string!("2023-09-24T01:48:20.149Z")),
+            _deprecated: string!("2025-05-30T22:47:42.900Z"),
+            deadline_to_accept: Some(string!("2025-05-30T22:47:42.900Z")),
             terms: Terms {
-                deadline: string!("2023-09-30T01:48:20.149Z"),
+                deadline: string!("2025-06-05T22:47:42.900Z"),
                 payment: Payment {
-                    on_accepted: 23229,
-                    on_fulfilled: 113742,
+                    on_accepted: 1690,
+                    on_fulfilled: 8276,
                 },
                 deliver: Some(vec![Deliver {
-                    trade_symbol: string!("ALUMINUM_ORE"),
-                    destination_symbol: string!("X1-GM20-97222X"),
-                    units_required: 8900,
+                    trade_symbol: string!("IRON_ORE"),
+                    destination_symbol: string!("X1-RC42-H52"),
+                    units_required: 62,
                     units_fulfilled: 0,
                 }]),
             },
@@ -84,34 +84,35 @@ pub mod tests {
     fn should_be_deserializable() {
         let json_str = r#"
         {
-            "id": "clmvdg7k7dap9s60coav75shp",
+            "id": "cmb9ysth4mqyfuo6x6jh4jk9w",
             "factionSymbol": "COSMIC",
             "type": "PROCUREMENT",
             "terms": {
-            "deadline": "2023-09-30T01:48:20.149Z",
-            "payment": {
-                "onAccepted": 23229,
-                "onFulfilled": 113742
-            },
-            "deliver": [
+                "deadline": "2025-06-05T22:47:42.900Z",
+                "payment": {
+                "onAccepted": 1690,
+                "onFulfilled": 8276
+                },
+                "deliver": [
                 {
-                    "tradeSymbol": "ALUMINUM_ORE",
-                    "destinationSymbol": "X1-GM20-97222X",
-                    "unitsRequired": 8900,
+                    "tradeSymbol": "IRON_ORE",
+                    "destinationSymbol": "X1-RC42-H52",
+                    "unitsRequired": 62,
                     "unitsFulfilled": 0
                 }
-            ]
+                ]
             },
             "accepted": false,
             "fulfilled": false,
-            "expiration": "2023-09-24T01:48:20.149Z",
-            "deadlineToAccept": "2023-09-24T01:48:20.149Z"
+            "expiration": "2025-05-30T22:47:42.900Z",
+            "deadlineToAccept": "2025-05-30T22:47:42.900Z"
         }"#;
 
         let actual: Contract = serde_json::from_str(json_str).unwrap();
 
         let expected = some_contract();
 
+        assert_eq!(expected.terms, actual.terms);
         assert_eq!(expected, actual);
     }
 }

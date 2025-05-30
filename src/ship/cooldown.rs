@@ -14,9 +14,9 @@ pub mod tests {
     use super::*;
     use crate::string;
 
-    pub fn some_cooldown() -> Cooldown {
+    pub fn some_cooldown(symbol: String) -> Cooldown {
         Cooldown {
-            ship_symbol: string!("BADGER-1"),
+            ship_symbol: symbol,
             total_seconds: 0,
             remaining_seconds: 0,
             expiration: None,
@@ -24,7 +24,7 @@ pub mod tests {
     }
 
     #[test]
-    pub fn should_be_deserializable() {
+    pub fn some_cooldown_should_be_deserializable() {
         let json_str = r#"
         {
             "shipSymbol": "BADGER-1",
@@ -33,7 +33,7 @@ pub mod tests {
         }"#;
 
         let actual: Cooldown = serde_json::from_str(json_str).unwrap();
-        let expected = some_cooldown();
+        let expected = some_cooldown(string!("BADGER-1"));
 
         assert_eq!(expected, actual);
     }
