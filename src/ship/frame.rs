@@ -57,12 +57,12 @@ pub mod tests {
     pub fn some_frame() -> Frame {
         Frame {
             symbol: FrameType::Frigate,
-            name: string!("Frame Frigate"),
+            name: string!("Frigate"),
             description: string!("A medium-sized, multi-purpose spacecraft, often used for combat, transport, or support operations."),
-            condition: Some(100),
+            condition: Some(1),
             module_slots: 8,
             mounting_points: 5,
-            fuel_capacity: 1200,
+            fuel_capacity: 400,
             requirements: Requirements {
                 power: Some(8),
                 crew: Some(25),
@@ -74,19 +74,21 @@ pub mod tests {
     #[test]
     fn should_be_deserializable() {
         let json_str = r#"
-            {
-                "symbol": "FRAME_FRIGATE",
-                "name": "Frame Frigate",
-                "description": "A medium-sized, multi-purpose spacecraft, often used for combat, transport, or support operations.",
-                "moduleSlots": 8,
-                "mountingPoints": 5,
-                "fuelCapacity": 1200,
-                "condition": 100,
-                "requirements": {
-                "power": 8,
-                "crew": 25
-                }
-            }"#;
+        {
+            "symbol": "FRAME_FRIGATE",
+            "name": "Frigate",
+            "condition": 1,
+            "integrity": 1,
+            "description": "A medium-sized, multi-purpose spacecraft, often used for combat, transport, or support operations.",
+            "moduleSlots": 8,
+            "mountingPoints": 5,
+            "fuelCapacity": 400,
+            "requirements": {
+            "power": 8,
+            "crew": 25
+            },
+            "quality": 4
+        }"#;
 
         let actual: Frame = serde_json::from_str(json_str).unwrap();
         let expected = some_frame();

@@ -23,7 +23,7 @@ pub mod tests {
 
     pub fn some_cargo() -> Cargo {
         Cargo {
-            capacity: 60,
+            capacity: 40,
             units: 0,
             inventory: vec![],
         }
@@ -33,7 +33,7 @@ pub mod tests {
     fn should_be_deserializable() {
         let json_str = r#"
           {
-              "capacity": 60,
+              "capacity": 40,
               "units": 0,
               "inventory": []
           }"#;

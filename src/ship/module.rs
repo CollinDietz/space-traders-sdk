@@ -278,4 +278,41 @@ pub mod tests {
 
         assert_eq!(expected, actual);
     }
+
+    pub fn some_gas_processor() -> Module {
+        Module {
+            symbol: ModuleType::GasProcessorI,
+            capacity: None,
+            range: None,
+            name: string!("Gas Processor"),
+            description: string!(
+                "Filters and processes extracted gases into their component parts, filters out impurities, and containerizes them into raw storage units."
+            ),
+            requirements: Requirements {
+                power: Some(1),
+                crew: Some(0),
+                slots: Some(2),
+            },
+        }
+    }
+
+    #[test]
+    fn gas_processor_should_be_deserializable() {
+        let json_str = r#"
+        {
+            "symbol": "MODULE_GAS_PROCESSOR_I",
+            "name": "Gas Processor",
+            "description": "Filters and processes extracted gases into their component parts, filters out impurities, and containerizes them into raw storage units.",
+            "requirements": {
+                "power": 1,
+                "crew": 0,
+                "slots": 2
+            }
+        }"#;
+
+        let actual: Module = serde_json::from_str(json_str).unwrap();
+        let expected = some_gas_processor();
+
+        assert_eq!(expected, actual);
+    }
 }

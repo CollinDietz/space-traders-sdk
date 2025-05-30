@@ -35,8 +35,8 @@ pub mod tests {
           symbol: EngineType::IonDriveII,
           name: string!("Ion Drive II"),
           description: string!("An advanced propulsion system that uses ionized particles to generate high-speed, low-thrust acceleration, with improved efficiency and performance."),
-          condition: Some(100),
-          speed: 30,
+          condition: Some(1),
+          speed: 36,
           requirements: Requirements {
               power: Some(6),
               crew: Some(8),
@@ -48,17 +48,19 @@ pub mod tests {
     #[test]
     fn should_be_deserializable() {
         let json_str = r#"
-          {
-              "symbol": "ENGINE_ION_DRIVE_II",
-              "name": "Ion Drive II",
-              "description": "An advanced propulsion system that uses ionized particles to generate high-speed, low-thrust acceleration, with improved efficiency and performance.",
-              "condition": 100,
-              "speed": 30,
-              "requirements": {
-              "power": 6,
-              "crew": 8
-              }
-          }"#;
+        {
+            "symbol": "ENGINE_ION_DRIVE_II",
+            "name": "Ion Drive II",
+            "condition": 1,
+            "integrity": 1,
+            "description": "An advanced propulsion system that uses ionized particles to generate high-speed, low-thrust acceleration, with improved efficiency and performance.",
+            "speed": 36,
+            "requirements": {
+            "power": 6,
+            "crew": 8
+            },
+            "quality": 4
+        }"#;
 
         let actual: Engine = serde_json::from_str(json_str).unwrap();
         let expected = some_engine();

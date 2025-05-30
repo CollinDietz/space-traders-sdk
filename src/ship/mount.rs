@@ -106,6 +106,41 @@ pub mod tests {
         assert_eq!(expected, actual);
     }
 
+    pub fn some_sensor_array_2() -> Mount {
+        Mount {
+          symbol: MountType::SensorArrayII,
+          name: string!("Sensor Array II"),
+          description: Some(string!("An advanced sensor array that improves a ship's ability to detect and track other objects in space with greater accuracy and range.")),
+          strength: Some(4),
+          deposits: None,
+          requirements: Requirements {
+              power: Some(2),
+              crew: Some(2),
+              slots: None,
+          },
+      }
+    }
+
+    #[test]
+    fn sensor_array_2_should_be_deserializable() {
+        let json_str = r#"
+        {
+            "symbol": "MOUNT_SENSOR_ARRAY_II",
+            "name": "Sensor Array II",
+            "description": "An advanced sensor array that improves a ship's ability to detect and track other objects in space with greater accuracy and range.",
+            "requirements": {
+                "power": 2,
+                "crew": 2
+            },
+            "strength": 4
+        }"#;
+
+        let actual: Mount = serde_json::from_str(json_str).unwrap();
+        let expected = some_sensor_array_2();
+
+        assert_eq!(expected, actual);
+    }
+
     pub fn some_mining_laser() -> Mount {
         Mount {
           symbol: MountType::MiningLaserI,
@@ -137,6 +172,41 @@ pub mod tests {
 
         let actual: Mount = serde_json::from_str(json_str).unwrap();
         let expected = some_mining_laser();
+
+        assert_eq!(expected, actual);
+    }
+
+    pub fn some_mining_laser_2() -> Mount {
+        Mount {
+          symbol: MountType::MiningLaserII,
+          name: string!("Mining Laser II"),
+          description: Some(string!("An advanced mining laser that is more efficient and effective at extracting valuable minerals from asteroids and other space objects.")),
+          strength: Some(5),
+          deposits: None,
+          requirements: Requirements {
+              power: Some(2),
+              crew: Some(2),
+              slots: None,
+          },
+      }
+    }
+
+    #[test]
+    fn mining_laser_2_should_be_deserializable() {
+        let json_str = r#"
+        {
+            "symbol": "MOUNT_MINING_LASER_II",
+            "name": "Mining Laser II",
+            "description": "An advanced mining laser that is more efficient and effective at extracting valuable minerals from asteroids and other space objects.",
+            "requirements": {
+                "power": 2,
+                "crew": 2
+            },
+            "strength": 5
+        }"#;
+
+        let actual: Mount = serde_json::from_str(json_str).unwrap();
+        let expected = some_mining_laser_2();
 
         assert_eq!(expected, actual);
     }
@@ -261,6 +331,41 @@ pub mod tests {
 
         let actual: Mount = serde_json::from_str(json_str).unwrap();
         let expected = some_surveyor_2();
+
+        assert_eq!(expected, actual);
+    }
+
+    pub fn some_gas_siphon_2() -> Mount {
+        Mount {
+          symbol: MountType::GasSiphonII,
+          name: string!("Gas Siphon II"),
+          description: Some(string!("An advanced gas siphon that can extract gas and other resources from gas giants and other gas-rich bodies more efficiently and at a higher rate.")),
+          strength: Some(20),
+          deposits: None,
+          requirements: Requirements {
+              power: Some(2),
+              crew: Some(2),
+              slots: None,
+          },
+      }
+    }
+
+    #[test]
+    fn gas_siphon_2_should_be_deserializable() {
+        let json_str = r#"
+        {
+            "symbol": "MOUNT_GAS_SIPHON_II",
+            "name": "Gas Siphon II",
+            "description": "An advanced gas siphon that can extract gas and other resources from gas giants and other gas-rich bodies more efficiently and at a higher rate.",
+            "requirements": {
+                "power": 2,
+                "crew": 2
+            },
+            "strength": 20
+        }"#;
+
+        let actual: Mount = serde_json::from_str(json_str).unwrap();
+        let expected = some_gas_siphon_2();
 
         assert_eq!(expected, actual);
     }

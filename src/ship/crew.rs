@@ -24,8 +24,8 @@ pub mod tests {
 
     pub fn some_crew() -> Crew {
         Crew {
-            current: 59,
-            required: 59,
+            current: 57,
+            required: 57,
             capacity: 80,
             rotation: RotationMode::Strict,
             morale: 100,
@@ -36,14 +36,14 @@ pub mod tests {
     #[test]
     fn should_be_deserializable() {
         let json_str = r#"
-      {
-         "current": 59,
-         "capacity": 80,
-         "required": 59,
-         "rotation": "STRICT",
-         "morale": 100,
-         "wages": 0
-      }"#;
+        {
+            "current": 57,
+            "required": 57,
+            "capacity": 80,
+            "rotation": "STRICT",
+            "morale": 100,
+            "wages": 0
+        }"#;
 
         let actual: Crew = serde_json::from_str(json_str).unwrap();
         let expected = some_crew();

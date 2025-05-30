@@ -37,7 +37,7 @@ pub mod tests {
           symbol: ReactorType::FissionI,
           name: string!("Fission Reactor I"),
           description: string!("A basic fission power reactor, used to generate electricity from nuclear fission reactions."),
-          condition: Some(100),
+          condition: Some(1),
           power_output: 31,
           requirements: Requirements {
               power: None,
@@ -50,16 +50,18 @@ pub mod tests {
     #[test]
     fn should_be_deserializable() {
         let json_str = r#"
-          {
-              "symbol": "REACTOR_FISSION_I",
-              "name": "Fission Reactor I",
-              "description": "A basic fission power reactor, used to generate electricity from nuclear fission reactions.",
-              "condition": 100,
-              "powerOutput": 31,
-              "requirements": {
-                  "crew": 8
-              }
-          }"#;
+        {
+            "symbol": "REACTOR_FISSION_I",
+            "name": "Fission Reactor I",
+            "condition": 1,
+            "integrity": 1,
+            "description": "A basic fission power reactor, used to generate electricity from nuclear fission reactions.",
+            "powerOutput": 31,
+            "requirements": {
+            "crew": 8
+            },
+            "quality": 5
+        }"#;
 
         let actual: Reactor = serde_json::from_str(json_str).unwrap();
         let expected = some_reactor();

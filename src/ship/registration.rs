@@ -36,7 +36,7 @@ pub mod tests {
 
     pub fn some_registration() -> Registration {
         Registration {
-            name: string!("THISISATEST888-1"),
+            name: string!("BADGER-1"),
             faction_symbol: Factions::Cosmic,
             role: ShipRole::Command,
         }
@@ -45,12 +45,11 @@ pub mod tests {
     #[test]
     fn should_be_deserializable() {
         let json_str = r#"
-   {
-      "name": "THISISATEST888-1",
-      "factionSymbol": "COSMIC",
-      "role": "COMMAND"
-   }
-   "#;
+        {
+            "name": "BADGER-1",
+            "factionSymbol": "COSMIC",
+            "role": "COMMAND"
+        }"#;
 
         let actual: Registration = serde_json::from_str(json_str).unwrap();
         let expected = some_registration();

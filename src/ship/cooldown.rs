@@ -16,7 +16,7 @@ pub mod tests {
 
     pub fn some_cooldown() -> Cooldown {
         Cooldown {
-            ship_symbol: string!("THISISATEST888-1"),
+            ship_symbol: string!("BADGER-1"),
             total_seconds: 0,
             remaining_seconds: 0,
             expiration: None,
@@ -26,11 +26,11 @@ pub mod tests {
     #[test]
     pub fn should_be_deserializable() {
         let json_str = r#"
-      {
-          "shipSymbol": "THISISATEST888-1",
-          "totalSeconds": 0,
-          "remainingSeconds": 0
-      }"#;
+        {
+            "shipSymbol": "BADGER-1",
+            "totalSeconds": 0,
+            "remainingSeconds": 0
+        }"#;
 
         let actual: Cooldown = serde_json::from_str(json_str).unwrap();
         let expected = some_cooldown();
