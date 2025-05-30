@@ -14,7 +14,6 @@ pub struct Nav {
 #[serde(rename_all = "camelCase")]
 pub struct Route {
     pub destination: Location,
-    pub departure: Location,
     pub origin: Location,
     pub departure_time: String,
     pub arrival: String,
@@ -110,7 +109,6 @@ pub mod tests {
             pub fn some_route() -> Route {
                 Route {
                     destination: some_location(),
-                    departure: some_location(),
                     origin: some_location(),
                     departure_time: string!("2023-09-23T01:48:20.204Z"),
                     arrival: string!("2023-09-23T01:48:20.204Z"),
@@ -121,13 +119,6 @@ pub mod tests {
             fn should_be_deserializable() {
                 let json_str = r#"
               {
-                  "departure": {
-                     "symbol": "X1-GM20-33220C",
-                     "type": "PLANET",
-                     "systemSymbol": "X1-GM20",
-                     "x": 5,
-                     "y": -21
-                  },
                   "origin": {
                      "symbol": "X1-GM20-33220C",
                      "type": "PLANET",
@@ -170,13 +161,6 @@ pub mod tests {
             "systemSymbol": "X1-GM20",
             "waypointSymbol": "X1-GM20-33220C",
             "route": {
-               "departure": {
-                  "symbol": "X1-GM20-33220C",
-                  "type": "PLANET",
-                  "systemSymbol": "X1-GM20",
-                  "x": 5,
-                  "y": -21
-               },
                "origin": {
                   "symbol": "X1-GM20-33220C",
                   "type": "PLANET",
