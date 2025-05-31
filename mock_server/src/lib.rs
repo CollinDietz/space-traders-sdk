@@ -25,13 +25,17 @@ pub async fn mock_response(
         method.to_string().as_str(),
         format!("/{}", endpoint).as_str(),
     )
+    .match_header("Authorization", format!("Bearer {}", bearer_token).as_str())
     .with_header("Content-Type", "application/json")
-    .with_header(
-        "Authorization",
-        format!("Bearer {}", bearer_token).to_string().as_str(),
-    )
     .with_status(status)
-    .with_body_from_file(format!("mock_server/responses/{}_{}.json", endpoint, status).as_str())
+    .with_body_from_file(
+        format!(
+            "mock_server/responses/{}_{}.json",
+            endpoint.replace("/", "_"),
+            status
+        )
+        .as_str(),
+    )
     .create_async()
     .await;
 

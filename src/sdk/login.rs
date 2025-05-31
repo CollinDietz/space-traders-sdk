@@ -48,7 +48,7 @@ impl Sdk {
     // }
 
     pub async fn register(&self, request: RegistrationRequest) -> Result<LoginData, Error> {
-        let response = self.post("register", &request).await?;
+        let response = self.post_with_body("register", &request).await?;
 
         if response.status() == 201 {
             let text = response.text().await?;
