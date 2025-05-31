@@ -21,12 +21,12 @@ pub mod tests {
 
     pub fn some_agent() -> Agent {
         Agent {
-            account_id: Some(string!("clmvdg7i7dap7s60cmpyn9tnz")),
-            symbol: string!("THISISATEST888"),
-            headquarters: string!("X1-GM20-33220C"),
-            credits: 150000,
+            account_id: Some(string!("cmb9x37zu005atm16tqkta71c")),
+            symbol: string!("BADGER"),
+            headquarters: string!("X1-RC42-A1"),
+            credits: 175000,
             starting_faction: Factions::Cosmic,
-            ship_count: None,
+            ship_count: Some(2),
         }
     }
 
@@ -34,11 +34,12 @@ pub mod tests {
     fn registration_response_should_be_deserializable() {
         let json_str = r#"
         {
-            "accountId": "clmvdg7i7dap7s60cmpyn9tnz",
-            "symbol": "THISISATEST888",
-            "headquarters": "X1-GM20-33220C",
-            "credits": 150000,
-            "startingFaction": "COSMIC"
+            "accountId": "cmb9x37zu005atm16tqkta71c",
+            "symbol": "BADGER",
+            "headquarters": "X1-RC42-A1",
+            "credits": 175000,
+            "startingFaction": "COSMIC",
+            "shipCount": 2
         }"#;
 
         let actual: Agent = serde_json::from_str(json_str).unwrap();

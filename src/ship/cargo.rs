@@ -23,23 +23,46 @@ pub mod tests {
 
     pub fn some_cargo() -> Cargo {
         Cargo {
-            capacity: 60,
+            capacity: 40,
             units: 0,
             inventory: vec![],
         }
     }
 
     #[test]
-    fn should_be_deserializable() {
+    fn some_cargo_should_be_deserializable() {
         let json_str = r#"
           {
-              "capacity": 60,
+              "capacity": 40,
               "units": 0,
               "inventory": []
           }"#;
 
         let actual: Cargo = serde_json::from_str(json_str).unwrap();
         let expected = some_cargo();
+
+        assert_eq!(expected, actual);
+    }
+
+    pub fn no_capacity_cargo() -> Cargo {
+        Cargo {
+            capacity: 0,
+            units: 0,
+            inventory: vec![],
+        }
+    }
+
+    #[test]
+    fn no_capacity_cargo_should_be_deserializable() {
+        let json_str = r#"
+          {
+              "capacity": 0,
+              "units": 0,
+              "inventory": []
+          }"#;
+
+        let actual: Cargo = serde_json::from_str(json_str).unwrap();
+        let expected = no_capacity_cargo();
 
         assert_eq!(expected, actual);
     }

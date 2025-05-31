@@ -22,29 +22,58 @@ pub mod tests {
 
     pub fn some_fuel() -> Fuel {
         Fuel {
-            current: 1200,
-            capacity: 1200,
+            current: 400,
+            capacity: 400,
             consumed: Some(FuelConsumed {
                 amount: 0,
-                timestamp: string!("2023-09-23T01:48:20.204Z"),
+                timestamp: string!("2025-05-29T22:47:42.914Z"),
             }),
         }
     }
 
     #[test]
-    pub fn should_be_deserializable() {
+    pub fn some_fuel_should_be_deserializable() {
         let json_str = r#"
-      {
-          "current": 1200,
-          "capacity": 1200,
-          "consumed": {
-          "amount": 0,
-          "timestamp": "2023-09-23T01:48:20.204Z"
-          }
-      }"#;
+        {
+            "current": 400,
+            "capacity": 400,
+            "consumed": {
+                "amount": 0,
+                "timestamp": "2025-05-29T22:47:42.914Z"
+            }
+        }"#;
 
         let actual: Fuel = serde_json::from_str(json_str).unwrap();
         let expected = some_fuel();
+
+        assert_eq!(expected, actual);
+    }
+
+    pub fn empty_fuel() -> Fuel {
+        Fuel {
+            current: 0,
+            capacity: 0,
+            consumed: Some(FuelConsumed {
+                amount: 0,
+                timestamp: string!("2025-05-29T22:47:42.923Z"),
+            }),
+        }
+    }
+
+    #[test]
+    pub fn empty_fuel_should_be_deserializable() {
+        let json_str = r#"
+        {
+            "current": 0,
+            "capacity": 0,
+            "consumed": {
+                "amount": 0,
+                "timestamp": "2025-05-29T22:47:42.923Z"
+            }
+        }"#;
+
+        let actual: Fuel = serde_json::from_str(json_str).unwrap();
+        let expected = empty_fuel();
 
         assert_eq!(expected, actual);
     }

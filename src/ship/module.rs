@@ -17,8 +17,14 @@ pub struct Module {
 pub enum ModuleType {
     #[serde(rename = "MODULE_MINERAL_PROCESSOR_I")]
     MineralProcessorI,
+    #[serde(rename = "MODULE_GAS_PROCESSOR_I")]
+    GasProcessorI,
     #[serde(rename = "MODULE_CARGO_HOLD_I")]
     CargoHoldI,
+    #[serde(rename = "MODULE_CARGO_HOLD_II")]
+    CargoHoldII,
+    #[serde(rename = "MODULE_CARGO_HOLD_III")]
+    CargoHoldIII,
     #[serde(rename = "MODULE_CREW_QUARTERS_I")]
     CrewQuartersI,
     #[serde(rename = "MODULE_ENVOY_QUARTERS_I")]
@@ -88,6 +94,42 @@ pub mod tests {
 
         let actual: Module = serde_json::from_str(json_str).unwrap();
         let expected = some_cargo_hold();
+
+        assert_eq!(expected, actual);
+    }
+
+    pub fn some_cargo_hold_2() -> Module {
+        Module {
+            symbol: ModuleType::CargoHoldII,
+            capacity: Some(40),
+            range: None,
+            name: string!("Expanded Cargo Hold"),
+            description: string!("An expanded cargo hold module that provides more efficient storage space for a ship's cargo."),
+            requirements: Requirements {
+                power: Some(2),
+                crew: Some(2),
+                slots: Some(2),
+            },
+        }
+    }
+
+    #[test]
+    fn cargo_hold_2_should_be_deserializable() {
+        let json_str = r#"
+          {
+            "symbol": "MODULE_CARGO_HOLD_II",
+            "name": "Expanded Cargo Hold",
+            "description": "An expanded cargo hold module that provides more efficient storage space for a ship's cargo.",
+            "requirements": {
+              "power": 2,
+              "crew": 2,
+              "slots": 2
+            },
+            "capacity": 40
+          }"#;
+
+        let actual: Module = serde_json::from_str(json_str).unwrap();
+        let expected = some_cargo_hold_2();
 
         assert_eq!(expected, actual);
     }
@@ -233,6 +275,43 @@ pub mod tests {
 
         let actual: Module = serde_json::from_str(json_str).unwrap();
         let expected = some_warp_drive();
+
+        assert_eq!(expected, actual);
+    }
+
+    pub fn some_gas_processor() -> Module {
+        Module {
+            symbol: ModuleType::GasProcessorI,
+            capacity: None,
+            range: None,
+            name: string!("Gas Processor"),
+            description: string!(
+                "Filters and processes extracted gases into their component parts, filters out impurities, and containerizes them into raw storage units."
+            ),
+            requirements: Requirements {
+                power: Some(1),
+                crew: Some(0),
+                slots: Some(2),
+            },
+        }
+    }
+
+    #[test]
+    fn gas_processor_should_be_deserializable() {
+        let json_str = r#"
+        {
+            "symbol": "MODULE_GAS_PROCESSOR_I",
+            "name": "Gas Processor",
+            "description": "Filters and processes extracted gases into their component parts, filters out impurities, and containerizes them into raw storage units.",
+            "requirements": {
+                "power": 1,
+                "crew": 0,
+                "slots": 2
+            }
+        }"#;
+
+        let actual: Module = serde_json::from_str(json_str).unwrap();
+        let expected = some_gas_processor();
 
         assert_eq!(expected, actual);
     }
