@@ -14,13 +14,22 @@ impl std::string::ToString for RequestMethod {
     }
 }
 
-pub fn mock_response(method: RequestMethod, endpoint: &str, status: usize) -> ServerGuard {
+pub fn mock_response(
+    method: RequestMethod,
+    endpoint: &str,
+    status: usize,
+    bearer_token: String,
+) -> ServerGuard {
     let mut s = mockito::Server::new();
     s.mock(
         method.to_string().as_str(),
         format!("/{}", endpoint).as_str(),
     )
     .with_header("Content-Type", "application/json")
+    .with_header(
+        "Authorization",
+        format!("Bearer {}", bearer_token).to_string().as_str(),
+    )
     .with_status(status)
     .with_body_from_file(format!("mock_server/responses/{}_{}.json", endpoint, status).as_str())
     .create();
