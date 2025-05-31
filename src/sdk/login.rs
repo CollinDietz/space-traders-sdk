@@ -2,9 +2,9 @@ use reqwest::Error;
 use serde_derive::{Deserialize, Serialize};
 
 use crate::agent::Agent;
-use crate::api::Api;
 use crate::contract::Contract;
 use crate::faction::{Faction, Factions};
+use crate::sdk::Sdk;
 use crate::ship::Ship;
 
 #[derive(Debug, PartialEq, Serialize)]
@@ -28,9 +28,9 @@ pub struct LoginResponse {
     pub data: LoginData,
 }
 
-impl Api {
+impl Sdk {
     // pub async fn login_internal(url: String, token: String) -> Result<(Self, LoginData), Error> {
-    //     let _api = Api {
+    //     let _sdk = Sdk {
     //         client: reqwest::Client::new(),
     //         url: url,
     //         token: token,
@@ -44,7 +44,7 @@ impl Api {
     //         token: token,
     //     };
 
-    //     Ok((_api, _login_data))
+    //     Ok((_sdk, _login_data))
     // }
 
     pub async fn register(&self, request: RegistrationRequest) -> Result<LoginData, Error> {
@@ -103,14 +103,14 @@ pub mod tests {
     async fn request_should_be_sent_parsed_and_returned() {
         let mock_server = mock_response(RequestMethod::Post, "register", 201, some_token());
 
-        let api = Api::with_url(mock_server.url(), some_token());
+        let sdk = Sdk::with_url(mock_server.url(), some_token());
 
         let request: RegistrationRequest = RegistrationRequest {
             callsign: string!("SOMEPLAYER"),
             faction: Factions::Aegis,
         };
 
-        let actual = api.register(request).await.unwrap();
+        let actual = sdk.register(request).await.unwrap();
 
         let expected = some_login_data();
 

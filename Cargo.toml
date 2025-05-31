@@ -2,7 +2,7 @@
 members = ["./", "mock_server"]
 
 [package]
-name = "space_traders_api"
+name = "space_traders_sdk"
 version = "0.1.0"
 edition = "2021"
 

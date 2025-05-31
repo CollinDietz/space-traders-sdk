@@ -4,15 +4,15 @@ use serde::Serialize;
 const REAL_SERVER: &'static str = "https://api.spacetraders.io/v2";
 
 #[derive(Debug, Clone)]
-pub struct Api {
+pub struct Sdk {
     client: reqwest::Client,
     url: String,
     token: String,
 }
 
-impl Api {
+impl Sdk {
     pub fn new(token: String) -> Self {
-        Api {
+        Sdk {
             client: reqwest::Client::new(),
             url: REAL_SERVER.to_string(),
             token,
@@ -20,7 +20,7 @@ impl Api {
     }
 
     pub fn with_url(url: String, token: String) -> Self {
-        Api {
+        Sdk {
             client: reqwest::Client::new(),
             url,
             token,
