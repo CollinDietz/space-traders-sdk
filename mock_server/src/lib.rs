@@ -14,13 +14,13 @@ impl std::string::ToString for RequestMethod {
     }
 }
 
-pub fn mock_response(
+pub async fn mock_response(
     method: RequestMethod,
     endpoint: &str,
     status: usize,
     bearer_token: String,
 ) -> ServerGuard {
-    let mut s = mockito::Server::new();
+    let mut s = mockito::Server::new_async().await;
     s.mock(
         method.to_string().as_str(),
         format!("/{}", endpoint).as_str(),
@@ -32,7 +32,8 @@ pub fn mock_response(
     )
     .with_status(status)
     .with_body_from_file(format!("mock_server/responses/{}_{}.json", endpoint, status).as_str())
-    .create();
+    .create_async()
+    .await;
 
     s
 }

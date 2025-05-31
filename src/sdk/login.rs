@@ -101,7 +101,7 @@ pub mod tests {
 
     #[tokio::test]
     async fn request_should_be_sent_parsed_and_returned() {
-        let mock_server = mock_response(RequestMethod::Post, "register", 201, some_token());
+        let mock_server = mock_response(RequestMethod::Post, "register", 201, some_token()).await;
 
         let sdk = Sdk::with_url(mock_server.url(), some_token());
 
