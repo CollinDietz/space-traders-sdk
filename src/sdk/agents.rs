@@ -13,7 +13,7 @@ pub struct MyAgentResponse {
 impl Sdk {
     pub async fn get_agent(&self, callsign: String) -> Result<Agent, Error> {
         let response = self
-            .post("my/agent", self.agent_tokens.get(&callsign).unwrap())
+            .get("my/agent", self.agent_tokens.get(&callsign).unwrap())
             .await?;
 
         if response.status() == 200 {
@@ -53,7 +53,7 @@ pub mod tests {
     #[tokio::test]
     async fn request_should_be_sent_parsed_and_returned() {
         let mock_server =
-            mock_response(RequestMethod::Post, "my/agent", 200, some_agent_token()).await;
+            mock_response(RequestMethod::Get, "my/agent", 200, some_agent_token()).await;
 
         let mut sdk = Sdk::with_url(mock_server.url(), some_account_token());
         sdk.add_agent_token(string!("BADGER"), some_agent_token());

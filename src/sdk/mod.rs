@@ -36,16 +36,16 @@ impl Sdk {
         self.agent_tokens.insert(callsign, token);
     }
 
-    async fn post(&self, endpoint: &str, token: &str) -> Result<Response, Error> {
+    async fn get(&self, endpoint: &str, token: &str) -> Result<Response, Error> {
         self.client
-            .post(&format!("{}/{}", self.url, endpoint))
+            .get(&format!("{}/{}", self.url, endpoint))
             .bearer_auth(token)
             .header("Accept", "application/json")
             .send()
             .await
     }
 
-    async fn post_with_body<T: Serialize + ?Sized>(
+    async fn post<T: Serialize + ?Sized>(
         &self,
         endpoint: &str,
         body: &T,

@@ -47,13 +47,14 @@ impl Sdk {
     //     Ok((_sdk, _login_data))
     // }
 
-    pub async fn register(&self, request: RegistrationRequest) -> Result<LoginData, Error> {
-        let response = self.post_with_body("register", &request).await?;
+    pub async fn register(&mut self, request: RegistrationRequest) -> Result<LoginData, Error> {
+        let response = self.post("register", &request).await?;
 
         if response.status() == 201 {
             let text = response.text().await?;
             // println!("{}", text);
             let data: LoginResponse = serde_json::from_str(text.as_str()).unwrap();
+            self.add_agent_token(data.data.agent.symbol.clone(), data.data.token.clone());
             Ok(data.data)
         } else {
             println!("{}", response.status());
@@ -103,7 +104,7 @@ pub mod tests {
     async fn request_should_be_sent_parsed_and_returned() {
         let mock_server = mock_response(RequestMethod::Post, "register", 201, some_token()).await;
 
-        let sdk = Sdk::with_url(mock_server.url(), some_token());
+        let mut sdk = Sdk::with_url(mock_server.url(), some_token());
 
         let request: RegistrationRequest = RegistrationRequest {
             callsign: string!("SOMEPLAYER"),
