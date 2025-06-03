@@ -1,8 +1,8 @@
 use reqwest::Error;
 use serde_derive::{Deserialize, Serialize};
 
-use crate::agent::Agent;
-use crate::contract::Contract;
+use crate::agent::AgentData;
+use crate::contract::ContractData;
 use crate::faction::{Faction, Factions};
 use crate::sdk::Sdk;
 use crate::ship::Ship;
@@ -16,8 +16,8 @@ pub struct RegistrationRequest {
 
 #[derive(Debug, PartialEq, Deserialize)]
 pub struct LoginData {
-    pub agent: Agent,
-    pub contract: Contract,
+    pub agent: AgentData,
+    pub contract: ContractData,
     pub faction: Faction,
     pub ships: Vec<Ship>,
     pub token: String,
@@ -72,8 +72,8 @@ pub mod tests {
 
     use super::super::*;
     use super::*;
-    use crate::agent::tests::some_agent;
-    use crate::contract::tests::some_contract;
+    use crate::agent::tests::some_agent_data;
+    use crate::contract::tests::contract_data::some_contract_data;
     use crate::faction::tests::some_faction;
     use crate::ordered_json;
     use crate::ship::tests::some_other_ship;
@@ -86,8 +86,8 @@ pub mod tests {
 
     fn some_login_data() -> LoginData {
         LoginData {
-                agent: some_agent(),
-                contract: some_contract(),
+                agent: some_agent_data(),
+                contract: some_contract_data(),
                 faction: some_faction(),
                 ships: vec![some_ship(), some_other_ship()],
                 token: string!("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZGVudGlmaWVyIjoiQkFER0VSIiwidmVyc2lvbiI6InYyLjMuMCIsInJlc2V0X2RhdGUiOiIyMDI1LTA1LTI1IiwiaWF0IjoxNzQ4NTU4ODYyLCJzdWIiOiJhZ2VudC10b2tlbiJ9.HMkoU-6j8OI_dibjJ7tvgE15t0XFAkDraPf_r4JgTpeX9Joc6kvjljci5hvZULsHVc7R-R9DwxUZidbQhlaYkbqEUFVsZd-Ywh58l9Gn2Hc3qfmF-NjwPCVCPSfCY7AiyxSJS_8jP57Q7HS_HkzKdY7Z5AoYZ4v-ep6aiWpe6u9kPyHczbfn-1UYw3ylzgxreSSfQUDYqeLfaj95WCJg9OUYlc4TG2zSxE4Qd6NAQ_wfsEiJsV4G8YgrH6XAACBo0zTgwy4xoRMDb4zaOWGbqTQKI8WsyTeZuEuaDrzQL81tYqChQ1WhHkjKpFPNsAe501Sw2gTGyjG8elzt5ErA_yGMswZs0M4KePD9B1tjeDvyHAgZ2U6jNfh6IKyR1OK6jeFimVFBE2ffLpIRnJD_wRsTgofBx3HI8cKx15XzDGjU82p5tr1SuwyOwQQpxhcMhsoB8WNabtj1ntWX55ODWqQ7PANlfdMWfkY7hLdOTy6rfvBwMkCKZrT7hWzxJ1wzbUhOoD3XD81rMt_xBP_KlVhldRhmNYiboxhwFoVZZlkmGr347XhBi9G3k1lYUiBBVOD8-k9TMk2gROC5VXMW7KdCHD2OtY3RLe6P19audvT5r8Og3pJw_1HMF7Xnz2_PFySPHfqgvZzjiFERgkuR4v472jofcliL-bwOhuEOHu0"),
@@ -102,14 +102,21 @@ pub mod tests {
 
     #[tokio::test]
     async fn request_should_be_sent_parsed_and_returned() {
-        let mock_server = mock_response(RequestMethod::Post, "register", 201, some_token()).await;
-
-        let mut sdk = Sdk::with_url(mock_server.url(), some_token());
-
         let request: RegistrationRequest = RegistrationRequest {
             callsign: string!("SOMEPLAYER"),
             faction: Factions::Aegis,
         };
+
+        let mock_server = mock_response(
+            RequestMethod::Post,
+            "register",
+            201,
+            some_token(),
+            Some(&request),
+        )
+        .await;
+
+        let mut sdk = Sdk::with_url(mock_server.url(), some_token());
 
         let actual = sdk.register(request).await.unwrap();
 

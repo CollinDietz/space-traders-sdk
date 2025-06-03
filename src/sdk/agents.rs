@@ -1,17 +1,17 @@
 use reqwest::Error;
 use serde_derive::Deserialize;
 
-use crate::agent::Agent;
+use crate::agent::AgentData;
 
 use super::Sdk;
 
 #[derive(Debug, PartialEq, Deserialize)]
 pub struct MyAgentResponse {
-    pub data: Agent,
+    pub data: AgentData,
 }
 
 impl Sdk {
-    pub async fn get_agent(&self, callsign: String) -> Result<Agent, Error> {
+    pub async fn get_agent(&self, callsign: String) -> Result<AgentData, Error> {
         let response = self
             .get("my/agent", self.agent_tokens.get(&callsign).unwrap())
             .await?;
@@ -34,12 +34,14 @@ impl Sdk {
 pub mod tests {
     use mock_server::{mock_response, RequestMethod};
 
-    use crate::{agent::tests::some_agent, sdk::Sdk, string};
+    use crate::{agent::tests::some_agent_data, sdk::Sdk, string};
 
     use super::MyAgentResponse;
 
     fn some_my_agent_response() -> MyAgentResponse {
-        MyAgentResponse { data: some_agent() }
+        MyAgentResponse {
+            data: some_agent_data(),
+        }
     }
 
     fn some_account_token() -> String {
@@ -52,15 +54,21 @@ pub mod tests {
 
     #[tokio::test]
     async fn request_should_be_sent_parsed_and_returned() {
-        let mock_server =
-            mock_response(RequestMethod::Get, "my/agent", 200, some_agent_token()).await;
+        let mock_server = mock_response::<serde_json::Value>(
+            RequestMethod::Get,
+            "my/agent",
+            200,
+            some_agent_token(),
+            None,
+        )
+        .await;
 
         let mut sdk = Sdk::with_url(mock_server.url(), some_account_token());
         sdk.add_agent_token(string!("BADGER"), some_agent_token());
 
         let actual = sdk.get_agent(string!("BADGER")).await.unwrap();
 
-        let expected = some_agent();
+        let expected = some_agent_data();
 
         assert_eq!(expected, actual)
     }
