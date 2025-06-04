@@ -194,10 +194,8 @@ pub mod tests {
 
         #[test]
         fn should_be_constructable_from_contract_data() {
-            let contract = Contract::new(
-                Arc::new(SpaceTradersClient::new("", "")),
-                some_contract_data(),
-            );
+            let contract =
+                Contract::new(Arc::new(SpaceTradersClient::new("")), some_contract_data());
             assert!(!contract.is_accepted())
         }
 
@@ -214,7 +212,8 @@ pub mod tests {
             )
             .await;
 
-            let space_traders_client = SpaceTradersClient::new(&mock_server.url(), &some_token());
+            let space_traders_client =
+                SpaceTradersClient::with_url(&mock_server.url(), &some_token());
             let contract = Contract::new(Arc::new(space_traders_client), data);
             let accepted_contract = contract.accept().await.unwrap();
 

@@ -4,6 +4,8 @@ use serde::Serialize;
 
 use crate::utils;
 
+const REAL_SERVER: &'static str = "https://api.spacetraders.io/v2";
+
 #[derive(Debug, Derivative)]
 #[derivative(PartialEq)]
 pub struct SpaceTradersClient {
@@ -14,7 +16,15 @@ pub struct SpaceTradersClient {
 }
 
 impl SpaceTradersClient {
-    pub fn new(url: &str, token: &str) -> Self {
+    pub fn new(token: &str) -> Self {
+        SpaceTradersClient {
+            client: reqwest::Client::new(),
+            url: REAL_SERVER.to_string(),
+            token: token.to_string(),
+        }
+    }
+
+    pub fn with_url(url: &str, token: &str) -> Self {
         SpaceTradersClient {
             client: reqwest::Client::new(),
             url: url.to_string(),

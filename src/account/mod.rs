@@ -7,8 +7,6 @@ use crate::faction::{Faction, Factions};
 use crate::ship::Ship;
 use crate::space_traders_client::SpaceTradersClient;
 
-const REAL_SERVER: &'static str = "https://api.spacetraders.io/v2";
-
 #[derive(Debug, PartialEq, Serialize)]
 pub struct RegistrationRequest {
     #[serde(rename = "symbol")]
@@ -32,34 +30,26 @@ pub struct RegistrationResponse {
 
 #[derive(Debug)]
 pub struct Account {
-    credentials: SpaceTradersClient,
+    client: SpaceTradersClient,
 }
 
 impl Account {
     pub fn new(account_token: String) -> Self {
         Account {
-            credentials: SpaceTradersClient::new(REAL_SERVER, &account_token),
+            client: SpaceTradersClient::new(&account_token),
         }
     }
 
-    pub fn with_url(url: String, account_token: String) -> Self {
-        Account {
-            credentials: SpaceTradersClient::new(&url, &account_token),
-        }
+    pub fn with_client(client: SpaceTradersClient) -> Self {
+        Account { client }
     }
 
     pub async fn register_agent(&self, request: RegistrationRequest) -> Result<Agent, Error> {
-        let response = self
-            .credentials
-            .post_with_body("register", &request)
-            .await?;
+        let response = self.client.post_with_body("register", &request).await?;
 
         if response.status() == 201 {
             let data: RegistrationResponse = response.json().await?;
-            Ok(Agent::from_registration_data(
-                &self.credentials.url,
-                data.data,
-            ))
+            Ok(Agent::from_registration_data(&self.client.url, data.data))
         } else {
             println!("{}", response.status());
             let error_text = response.text().await?;
@@ -119,7 +109,10 @@ pub mod tests {
         )
         .await;
 
-        let account = Account::with_url(mock_server.url(), some_token());
+        let account = Account::with_client(SpaceTradersClient::with_url(
+            &mock_server.url(),
+            &some_token(),
+        ));
 
         let actual = account.register_agent(request).await.unwrap();
 

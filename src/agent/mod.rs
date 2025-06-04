@@ -35,7 +35,7 @@ impl Agent {
     // }
 
     pub fn from_registration_data(url: &str, data: RegistrationResponseData) -> Self {
-        let credentials = Arc::new(SpaceTradersClient::new(url, &data.token));
+        let credentials = Arc::new(SpaceTradersClient::with_url(url, &data.token));
 
         Agent {
             credentials: credentials.clone(),
