@@ -1,0 +1,36 @@
+{
+  "data": {
+    "contract": {
+      "id": "cmb9ysth4mqyfuo6x6jh4jk9w",
+      "factionSymbol": "COSMIC",
+      "type": "PROCUREMENT",
+      "terms": {
+        "deadline": "2025-06-05T22:47:42.900Z",
+        "payment": {
+          "onAccepted": 1690,
+          "onFulfilled": 8276
+        },
+        "deliver": [
+          {
+            "tradeSymbol": "IRON_ORE",
+            "destinationSymbol": "X1-RC42-H52",
+            "unitsRequired": 62,
+            "unitsFulfilled": 0
+          }
+        ]
+      },
+      "accepted": true,
+      "fulfilled": false,
+      "expiration": "2025-05-30T22:47:42.900Z",
+      "deadlineToAccept": "2025-05-30T22:47:42.900Z"
+    },
+    "agent": {
+      "accountId": "cmb9x37zu005atm16tqkta71c",
+      "symbol": "SHOOTTEST",
+      "headquarters": "X1-AB31-A1",
+      "credits": 176121,
+      "startingFaction": "COSMIC",
+      "shipCount": 2
+    }
+  }
+}

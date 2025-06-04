@@ -1,11 +1,9 @@
+use std::sync::Arc;
+
 use reqwest::Error;
 use serde_derive::Deserialize;
 
-use crate::{
-    agent::AgentData,
-    faction::Factions,
-    utils::{self},
-};
+use crate::{agent::AgentData, credential::Credential, faction::Factions};
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -66,19 +64,15 @@ pub struct ContractAcceptResponse {
     pub data: ContractAcceptResponseData,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct Contract {
-    url: String,
-    client: reqwest::Client,
-    data: ContractData,
+    credentials: Arc<Credential>,
+    pub data: ContractData,
 }
 
 impl Contract {
-    pub fn from_contract_data(data: ContractData, url: String) -> Self {
-        Contract {
-            client: reqwest::Client::new(),
-            data,
-            url,
-        }
+    pub fn new(credentials: Arc<Credential>, data: ContractData) -> Self {
+        Contract { credentials, data }
     }
 
     pub fn is_accepted(&self) -> bool {
@@ -87,22 +81,15 @@ impl Contract {
 
     // need to post to my/contracts/{contractId}/accept
     pub async fn accept(&self) -> Result<Contract, Error> {
-        let response = utils::post::<serde_json::Value>(
-            &self.client,
-            &self.url,
-            &format!("my/contracts/{}/accept", &self.data.id),
-            "some_token",
-            None,
-        )
-        .await?;
+        let response = self
+            .credentials
+            .post(&format!("my/contracts/{}/accept", &self.data.id))
+            .await?;
 
         if response.status() == 200 {
             let text = response.text().await?;
             let data: ContractAcceptResponse = serde_json::from_str(text.as_str()).unwrap();
-            Ok(Contract::from_contract_data(
-                data.data.contract,
-                self.url.clone(),
-            ))
+            Ok(Contract::new(self.credentials.clone(), data.data.contract))
         } else {
             println!("{}", response.status());
             let error_text = response.text().await?;
@@ -116,10 +103,7 @@ impl Contract {
 pub mod tests {
     pub mod contract_data {
         use super::super::*;
-        use crate::{
-            contract::{self, tests::contract_data},
-            string,
-        };
+        use crate::string;
 
         pub fn some_contract_data() -> ContractData {
             ContractData {
@@ -191,6 +175,8 @@ pub mod tests {
     }
 
     pub mod contract {
+        use std::sync::Arc;
+
         use mock_server::{mock_response, RequestMethod};
 
         use crate::{
@@ -198,6 +184,7 @@ pub mod tests {
                 tests::contract_data::{some_accepted_contract_data, some_contract_data},
                 Contract,
             },
+            credential::Credential,
             string,
         };
 
@@ -207,7 +194,7 @@ pub mod tests {
 
         #[test]
         fn should_be_constructable_from_contract_data() {
-            let contract = Contract::from_contract_data(some_contract_data(), string!(""));
+            let contract = Contract::new(Arc::new(Credential::new("", "")), some_contract_data());
             assert!(!contract.is_accepted())
         }
 
@@ -224,7 +211,8 @@ pub mod tests {
             )
             .await;
 
-            let contract = Contract::from_contract_data(data, mock_server.url());
+            let credential = Credential::new(&mock_server.url(), &some_token());
+            let contract = Contract::new(Arc::new(credential), data);
             let accepted_contract = contract.accept().await.unwrap();
 
             assert!(!contract.is_accepted());
