@@ -3,9 +3,9 @@ use serde_derive::{Deserialize, Serialize};
 
 use crate::agent::{Agent, AgentData};
 use crate::contract::ContractData;
-use crate::credential::Credential;
 use crate::faction::{Faction, Factions};
 use crate::ship::Ship;
+use crate::space_traders_client::SpaceTradersClient;
 
 const REAL_SERVER: &'static str = "https://api.spacetraders.io/v2";
 
@@ -32,19 +32,19 @@ pub struct RegistrationResponse {
 
 #[derive(Debug)]
 pub struct Account {
-    credentials: Credential,
+    credentials: SpaceTradersClient,
 }
 
 impl Account {
     pub fn new(account_token: String) -> Self {
         Account {
-            credentials: Credential::new(REAL_SERVER, &account_token),
+            credentials: SpaceTradersClient::new(REAL_SERVER, &account_token),
         }
     }
 
     pub fn with_url(url: String, account_token: String) -> Self {
         Account {
-            credentials: Credential::new(&url, &account_token),
+            credentials: SpaceTradersClient::new(&url, &account_token),
         }
     }
 

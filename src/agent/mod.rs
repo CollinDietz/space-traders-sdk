@@ -3,8 +3,8 @@ use std::sync::Arc;
 use serde_derive::Deserialize;
 
 use crate::{
-    account::RegistrationResponseData, contract::Contract, credential::Credential,
-    faction::Factions,
+    account::RegistrationResponseData, contract::Contract, faction::Factions,
+    space_traders_client::SpaceTradersClient,
 };
 
 #[derive(Debug, Deserialize, PartialEq)]
@@ -20,7 +20,7 @@ pub struct AgentData {
 
 #[derive(Debug, PartialEq)]
 pub struct Agent {
-    credentials: Arc<Credential>,
+    credentials: Arc<SpaceTradersClient>,
     data: AgentData,
     contracts: Vec<Contract>,
 }
@@ -35,7 +35,7 @@ impl Agent {
     // }
 
     pub fn from_registration_data(url: &str, data: RegistrationResponseData) -> Self {
-        let credentials = Arc::new(Credential::new(url, &data.token));
+        let credentials = Arc::new(SpaceTradersClient::new(url, &data.token));
 
         Agent {
             credentials: credentials.clone(),

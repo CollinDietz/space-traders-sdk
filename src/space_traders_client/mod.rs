@@ -6,16 +6,16 @@ use crate::utils;
 
 #[derive(Debug, Derivative)]
 #[derivative(PartialEq)]
-pub struct Credential {
+pub struct SpaceTradersClient {
     #[derivative(PartialEq = "ignore")]
     client: reqwest::Client,
     pub url: String,
     token: String,
 }
 
-impl Credential {
+impl SpaceTradersClient {
     pub fn new(url: &str, token: &str) -> Self {
-        Credential {
+        SpaceTradersClient {
             client: reqwest::Client::new(),
             url: url.to_string(),
             token: token.to_string(),

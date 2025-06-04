@@ -3,7 +3,7 @@ use std::sync::Arc;
 use reqwest::Error;
 use serde_derive::Deserialize;
 
-use crate::{agent::AgentData, credential::Credential, faction::Factions};
+use crate::{agent::AgentData, faction::Factions, space_traders_client::SpaceTradersClient};
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -66,12 +66,12 @@ pub struct ContractAcceptResponse {
 
 #[derive(Debug, PartialEq)]
 pub struct Contract {
-    credentials: Arc<Credential>,
+    credentials: Arc<SpaceTradersClient>,
     pub data: ContractData,
 }
 
 impl Contract {
-    pub fn new(credentials: Arc<Credential>, data: ContractData) -> Self {
+    pub fn new(credentials: Arc<SpaceTradersClient>, data: ContractData) -> Self {
         Contract { credentials, data }
     }
 
@@ -184,7 +184,7 @@ pub mod tests {
                 tests::contract_data::{some_accepted_contract_data, some_contract_data},
                 Contract,
             },
-            credential::Credential,
+            space_traders_client::SpaceTradersClient,
             string,
         };
 
@@ -194,7 +194,10 @@ pub mod tests {
 
         #[test]
         fn should_be_constructable_from_contract_data() {
-            let contract = Contract::new(Arc::new(Credential::new("", "")), some_contract_data());
+            let contract = Contract::new(
+                Arc::new(SpaceTradersClient::new("", "")),
+                some_contract_data(),
+            );
             assert!(!contract.is_accepted())
         }
 
@@ -211,8 +214,8 @@ pub mod tests {
             )
             .await;
 
-            let credential = Credential::new(&mock_server.url(), &some_token());
-            let contract = Contract::new(Arc::new(credential), data);
+            let space_traders_client = SpaceTradersClient::new(&mock_server.url(), &some_token());
+            let contract = Contract::new(Arc::new(space_traders_client), data);
             let accepted_contract = contract.accept().await.unwrap();
 
             assert!(!contract.is_accepted());
