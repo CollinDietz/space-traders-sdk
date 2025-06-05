@@ -66,30 +66,29 @@ pub struct ContractAcceptResponse {
 
 #[derive(Debug, PartialEq)]
 pub struct Contract {
-    credentials: Arc<SpaceTradersClient>,
+    client: Arc<SpaceTradersClient>,
     pub data: ContractData,
 }
 
 impl Contract {
-    pub fn new(credentials: Arc<SpaceTradersClient>, data: ContractData) -> Self {
-        Contract { credentials, data }
+    pub fn new(client: Arc<SpaceTradersClient>, data: ContractData) -> Self {
+        Contract { client, data }
     }
 
     pub fn is_accepted(&self) -> bool {
         self.data.accepted
     }
 
-    // need to post to my/contracts/{contractId}/accept
     pub async fn accept(&self) -> Result<Contract, Error> {
         let response = self
-            .credentials
+            .client
             .post(&format!("my/contracts/{}/accept", &self.data.id))
             .await?;
 
         if response.status() == 200 {
             let text = response.text().await?;
             let data: ContractAcceptResponse = serde_json::from_str(text.as_str()).unwrap();
-            Ok(Contract::new(self.credentials.clone(), data.data.contract))
+            Ok(Contract::new(self.client.clone(), data.data.contract))
         } else {
             println!("{}", response.status());
             let error_text = response.text().await?;

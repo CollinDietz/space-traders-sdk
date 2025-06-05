@@ -1,8 +1,6 @@
 use dotenv::dotenv;
 use space_traders_sdk::account::Account;
 use space_traders_sdk::account::RegistrationRequest;
-use space_traders_sdk::agent::Agent;
-use space_traders_sdk::contract::Contract;
 use space_traders_sdk::faction::Factions;
 use space_traders_sdk::string;
 
