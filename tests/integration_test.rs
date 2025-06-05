@@ -14,8 +14,9 @@ async fn can_register_agent_and_accept_contract() {
         callsign: string!("SHOOTTEST6"),
         faction: Factions::Aegis,
     };
-    let mut agent = account.register_agent(registration_request).await.unwrap(); // need to make register agent return Agent, not AgentData
-    let contract = agent.edit_contract(0);
+    let mut agent = account.register_agent(registration_request).await.unwrap();
+    let contract_id = agent.list_contracts().next().cloned().unwrap();
+    let contract = agent.edit_contract(&contract_id);
     let accepted_contract = contract.accept().await.unwrap();
     assert!(accepted_contract.is_accepted());
 }

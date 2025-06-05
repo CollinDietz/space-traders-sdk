@@ -1,4 +1,7 @@
-use std::sync::Arc;
+use std::{
+    collections::{hash_map::Keys, HashMap},
+    sync::Arc,
+};
 
 use serde_derive::Deserialize;
 
@@ -22,7 +25,7 @@ pub struct AgentData {
 pub struct Agent {
     client: Arc<SpaceTradersClient>,
     data: AgentData,
-    contracts: Vec<Contract>,
+    contracts: HashMap<String, Contract>,
 }
 
 impl Agent {
@@ -45,17 +48,20 @@ impl Agent {
 
         Agent {
             client: client.clone(),
-            contracts: vec![Contract::new(client.clone(), data.contract)],
+            contracts: HashMap::from([(
+                data.contract.id.clone(),
+                Contract::new(client.clone(), data.contract),
+            )]),
             data: data.agent,
         }
     }
 
-    pub fn list_contracts(&self) -> &Vec<Contract> {
-        &self.contracts
+    pub fn list_contracts(&self) -> Keys<'_, String, Contract> {
+        self.contracts.keys().clone()
     }
 
-    pub fn edit_contract(&mut self, index: usize) -> &mut Contract {
-        self.contracts.get_mut(index).unwrap()
+    pub fn edit_contract(&mut self, id: &str) -> &mut Contract {
+        self.contracts.get_mut(id).unwrap()
     }
 }
 
@@ -63,10 +69,7 @@ impl Agent {
 pub mod tests {
     use super::*;
 
-    use crate::{
-        account::tests::{some_agent_token, some_registration_response_data},
-        string,
-    };
+    use crate::{account::tests::some_registration_response_data, string};
 
     pub fn some_agent_data() -> AgentData {
         AgentData {
@@ -115,16 +118,13 @@ pub mod tests {
     fn agent_should_be_constructable_with_agent_data_and_be_able_to_list_contracts() {
         let data = some_registration_response_data();
 
-        let expected = vec![Contract::new(
-            Arc::new(SpaceTradersClient::new(&some_agent_token())),
-            data.contract.clone(),
-        )];
+        let expected = vec![&data.contract.id];
 
         let agent = Agent::from_registration_data(
             &SpaceTradersClient::new(""),
             some_registration_response_data(),
         );
 
-        assert_eq!(&expected, agent.list_contracts());
+        assert_eq!(expected, agent.list_contracts().collect::<Vec<&String>>());
     }
 }
