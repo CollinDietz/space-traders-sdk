@@ -49,7 +49,7 @@ impl Account {
 
         if response.status() == 201 {
             let data: RegistrationResponse = response.json().await?;
-            Ok(Agent::from_registration_data(&self.client.url, data.data))
+            Ok(Agent::from_registration_data(&self.client, data.data))
         } else {
             println!("{}", response.status());
             let error_text = response.text().await?;
@@ -77,14 +77,18 @@ pub mod tests {
         string!("some_token")
     }
 
+    fn some_agent_token() -> String {
+        string!("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZGVudGlmaWVyIjoiQkFER0VSIiwidmVyc2lvbiI6InYyLjMuMCIsInJlc2V0X2RhdGUiOiIyMDI1LTA1LTI1IiwiaWF0IjoxNzQ4NTU4ODYyLCJzdWIiOiJhZ2VudC10b2tlbiJ9.HMkoU-6j8OI_dibjJ7tvgE15t0XFAkDraPf_r4JgTpeX9Joc6kvjljci5hvZULsHVc7R-R9DwxUZidbQhlaYkbqEUFVsZd-Ywh58l9Gn2Hc3qfmF-NjwPCVCPSfCY7AiyxSJS_8jP57Q7HS_HkzKdY7Z5AoYZ4v-ep6aiWpe6u9kPyHczbfn-1UYw3ylzgxreSSfQUDYqeLfaj95WCJg9OUYlc4TG2zSxE4Qd6NAQ_wfsEiJsV4G8YgrH6XAACBo0zTgwy4xoRMDb4zaOWGbqTQKI8WsyTeZuEuaDrzQL81tYqChQ1WhHkjKpFPNsAe501Sw2gTGyjG8elzt5ErA_yGMswZs0M4KePD9B1tjeDvyHAgZ2U6jNfh6IKyR1OK6jeFimVFBE2ffLpIRnJD_wRsTgofBx3HI8cKx15XzDGjU82p5tr1SuwyOwQQpxhcMhsoB8WNabtj1ntWX55ODWqQ7PANlfdMWfkY7hLdOTy6rfvBwMkCKZrT7hWzxJ1wzbUhOoD3XD81rMt_xBP_KlVhldRhmNYiboxhwFoVZZlkmGr347XhBi9G3k1lYUiBBVOD8-k9TMk2gROC5VXMW7KdCHD2OtY3RLe6P19audvT5r8Og3pJw_1HMF7Xnz2_PFySPHfqgvZzjiFERgkuR4v472jofcliL-bwOhuEOHu0")
+    }
+
     pub fn some_registration_response_data() -> RegistrationResponseData {
         RegistrationResponseData {
-                agent: some_agent_data(),
-                contract: some_contract_data(),
-                faction: some_faction(),
-                ships: vec![some_ship(), some_other_ship()],
-                token: string!("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZGVudGlmaWVyIjoiQkFER0VSIiwidmVyc2lvbiI6InYyLjMuMCIsInJlc2V0X2RhdGUiOiIyMDI1LTA1LTI1IiwiaWF0IjoxNzQ4NTU4ODYyLCJzdWIiOiJhZ2VudC10b2tlbiJ9.HMkoU-6j8OI_dibjJ7tvgE15t0XFAkDraPf_r4JgTpeX9Joc6kvjljci5hvZULsHVc7R-R9DwxUZidbQhlaYkbqEUFVsZd-Ywh58l9Gn2Hc3qfmF-NjwPCVCPSfCY7AiyxSJS_8jP57Q7HS_HkzKdY7Z5AoYZ4v-ep6aiWpe6u9kPyHczbfn-1UYw3ylzgxreSSfQUDYqeLfaj95WCJg9OUYlc4TG2zSxE4Qd6NAQ_wfsEiJsV4G8YgrH6XAACBo0zTgwy4xoRMDb4zaOWGbqTQKI8WsyTeZuEuaDrzQL81tYqChQ1WhHkjKpFPNsAe501Sw2gTGyjG8elzt5ErA_yGMswZs0M4KePD9B1tjeDvyHAgZ2U6jNfh6IKyR1OK6jeFimVFBE2ffLpIRnJD_wRsTgofBx3HI8cKx15XzDGjU82p5tr1SuwyOwQQpxhcMhsoB8WNabtj1ntWX55ODWqQ7PANlfdMWfkY7hLdOTy6rfvBwMkCKZrT7hWzxJ1wzbUhOoD3XD81rMt_xBP_KlVhldRhmNYiboxhwFoVZZlkmGr347XhBi9G3k1lYUiBBVOD8-k9TMk2gROC5VXMW7KdCHD2OtY3RLe6P19audvT5r8Og3pJw_1HMF7Xnz2_PFySPHfqgvZzjiFERgkuR4v472jofcliL-bwOhuEOHu0"),
-            }
+            agent: some_agent_data(),
+            contract: some_contract_data(),
+            faction: some_faction(),
+            ships: vec![some_ship(), some_other_ship()],
+            token: some_agent_token(),
+        }
     }
 
     fn some_registration_response() -> RegistrationResponse {
@@ -116,8 +120,10 @@ pub mod tests {
 
         let actual = account.register_agent(request).await.unwrap();
 
-        let expected =
-            Agent::from_registration_data(&mock_server.url(), some_registration_response_data());
+        let expected = Agent::from_registration_data(
+            &SpaceTradersClient::with_url(&mock_server.url(), &some_agent_token()),
+            some_registration_response_data(),
+        );
 
         assert_eq!(expected, actual)
     }

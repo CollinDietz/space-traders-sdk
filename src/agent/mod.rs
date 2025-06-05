@@ -34,8 +34,14 @@ impl Agent {
     //     }
     // }
 
-    pub fn from_registration_data(url: &str, data: RegistrationResponseData) -> Self {
-        let credentials = Arc::new(SpaceTradersClient::with_url(url, &data.token));
+    pub fn from_registration_data(
+        origin_client: &SpaceTradersClient,
+        data: RegistrationResponseData,
+    ) -> Self {
+        let credentials = Arc::new(SpaceTradersClient::clone_with_token(
+            origin_client,
+            &data.token,
+        ));
 
         Agent {
             credentials: credentials.clone(),
@@ -96,14 +102,20 @@ pub mod tests {
 
     #[test]
     fn agent_should_be_constructable_with_registration_data() {
-        let _ = Agent::from_registration_data("", some_registration_response_data());
+        let _ = Agent::from_registration_data(
+            &SpaceTradersClient::new(""),
+            some_registration_response_data(),
+        );
     }
 
     #[test]
     fn agent_should_be_constructable_with_agent_data_and_be_able_to_list_contracts() {
         let data = some_registration_response_data();
         let expected = vec![data.contract.clone()];
-        let agent = Agent::from_registration_data("", some_registration_response_data());
+        let agent = Agent::from_registration_data(
+            &SpaceTradersClient::new(""),
+            some_registration_response_data(),
+        );
         // assert_eq!(&expected, agent.list_contracts());
     }
 }
