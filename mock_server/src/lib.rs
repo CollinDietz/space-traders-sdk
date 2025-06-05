@@ -32,12 +32,7 @@ pub async fn mock_response<T: Serialize>(
         .with_header("Content-Type", "application/json")
         .with_status(status)
         .with_body_from_file(
-            format!(
-                "mock_server/responses/{}_{}.json",
-                endpoint.replace("/", "_"),
-                status
-            )
-            .as_str(),
+            format!("mock_server/responses/{}/{}.json", endpoint, status).as_str(),
         );
 
     if let Some(bearer_token) = bearer_token {

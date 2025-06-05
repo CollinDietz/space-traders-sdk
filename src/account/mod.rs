@@ -141,7 +141,7 @@ pub mod tests {
 
     #[test]
     fn registration_response_should_be_deserializable() {
-        let json_str = &std::fs::read_to_string("mock_server/responses/register_201.json").unwrap();
+        let json_str = &std::fs::read_to_string("mock_server/responses/register/201.json").unwrap();
         let actual: RegistrationResponse = serde_json::from_str(json_str).unwrap();
         let expected = some_registration_response();
 
