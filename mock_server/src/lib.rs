@@ -28,7 +28,6 @@ pub async fn mock_response<T: Serialize>(
             method.to_string().as_str(),
             format!("/{}", endpoint).as_str(),
         )
-        //
         .with_header("Content-Type", "application/json")
         .with_status(status)
         .with_body_from_file(
