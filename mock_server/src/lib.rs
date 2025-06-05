@@ -19,7 +19,7 @@ pub async fn mock_response<T: Serialize>(
     method: RequestMethod,
     endpoint: &str,
     status: usize,
-    bearer_token: String,
+    bearer_token: Option<String>,
     body: Option<&T>,
 ) -> ServerGuard {
     let mut s = mockito::Server::new_async().await;
@@ -28,7 +28,7 @@ pub async fn mock_response<T: Serialize>(
             method.to_string().as_str(),
             format!("/{}", endpoint).as_str(),
         )
-        .match_header("Authorization", format!("Bearer {}", bearer_token).as_str())
+        //
         .with_header("Content-Type", "application/json")
         .with_status(status)
         .with_body_from_file(
@@ -39,6 +39,10 @@ pub async fn mock_response<T: Serialize>(
             )
             .as_str(),
         );
+
+    if let Some(bearer_token) = bearer_token {
+        mock = mock.match_header("Authorization", format!("Bearer {}", bearer_token).as_str());
+    }
 
     if let Some(body) = body {
         let json = serde_json::to_value(body).expect("Failed to serialize expected body");

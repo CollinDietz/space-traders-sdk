@@ -1,0 +1,8 @@
+{
+  "error": {
+    "code": 4103,
+    "message": "Missing Bearer token in the request. Did you confirm sending the 'Bearer {token}' as the authorization header?",
+    "data": {},
+    "requestId": "01974175-ce36-703f-b15f-ca4f608bae0e"
+  }
+}

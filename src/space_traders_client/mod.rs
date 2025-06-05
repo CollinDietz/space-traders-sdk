@@ -183,7 +183,7 @@ impl SpaceTradersClient {
         token: &str,
         body: Option<&T>,
         success_status: StatusCode,
-    ) -> Result<R, reqwest::Error> {
+    ) -> Result<R, Error> {
         let mut request = client
             .post(&format!("{}/{}", url, endpoint))
             .bearer_auth(token)
@@ -198,9 +198,15 @@ impl SpaceTradersClient {
         match result {
             Ok(response) => {
                 if response.status() == success_status {
-                    Ok(response.json().await?)
+                    match response.json::<R>().await {
+                        Ok(res) => Ok(res),
+                        Err(_e) => todo!(),
+                    }
                 } else {
-                    todo!()
+                    match response.json::<Error>().await {
+                        Ok(err) => Err(err),
+                        Err(_e) => todo!(),
+                    }
                 }
             }
             Err(_error) => {
@@ -213,7 +219,7 @@ impl SpaceTradersClient {
         &self,
         endpoint: &str,
         success_status: StatusCode,
-    ) -> Result<R, reqwest::Error> {
+    ) -> Result<R, Error> {
         SpaceTradersClient::internal_post::<serde_json::Value, R>(
             &self.client,
             &self.url,
@@ -230,7 +236,7 @@ impl SpaceTradersClient {
         endpoint: &str,
         body: &T,
         success_status: StatusCode,
-    ) -> Result<R, reqwest::Error> {
+    ) -> Result<R, Error> {
         SpaceTradersClient::internal_post(
             &self.client,
             &self.url,
@@ -245,10 +251,27 @@ impl SpaceTradersClient {
 
 #[cfg(test)]
 pub mod tests {
+    use mock_server::{mock_response, RequestMethod};
+
     use crate::{
-        space_traders_client::{Error, ErrorCode, ErrorData},
+        space_traders_client::{Error, ErrorCode, ErrorData, SpaceTradersClient},
         string,
     };
+
+    #[tokio::test]
+    async fn should_return_sdk_specific_error_if_request_responds_but_is_not_expected_status_code()
+    {
+        let mock_server =
+            mock_response::<serde_json::Value>(RequestMethod::Post, "register", 401, None, None)
+                .await;
+
+        let client = SpaceTradersClient::with_url(&mock_server.url(), &string!(""));
+
+        let _response: Error = client
+            .post::<serde_json::Value>("register", reqwest::StatusCode::CREATED)
+            .await
+            .unwrap_err();
+    }
 
     #[test]
     fn missing_token_error_should_be_deserializable() {

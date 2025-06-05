@@ -1,9 +1,13 @@
 use std::sync::Arc;
 
-use reqwest::{Error, StatusCode};
+use reqwest::StatusCode;
 use serde_derive::Deserialize;
 
-use crate::{agent::AgentData, faction::Factions, space_traders_client::SpaceTradersClient};
+use crate::{
+    agent::AgentData,
+    faction::Factions,
+    space_traders_client::{Error, SpaceTradersClient},
+};
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -199,7 +203,7 @@ pub mod tests {
                 RequestMethod::Post,
                 &format!("my/contracts/{}/accept", &data.id),
                 200,
-                some_token(),
+                Some(some_token()),
                 None,
             )
             .await;

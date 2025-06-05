@@ -1,11 +1,10 @@
-use reqwest::Error;
 use serde_derive::{Deserialize, Serialize};
 
 use crate::agent::{Agent, AgentData};
 use crate::contract::ContractData;
 use crate::faction::{Faction, Factions};
 use crate::ship::Ship;
-use crate::space_traders_client::SpaceTradersClient;
+use crate::space_traders_client::{Error, SpaceTradersClient};
 
 #[derive(Debug, PartialEq, Serialize)]
 pub struct RegistrationRequest {
@@ -103,7 +102,7 @@ pub mod tests {
             RequestMethod::Post,
             "register",
             201,
-            some_token(),
+            Some(some_token()),
             Some(&request),
         )
         .await;
