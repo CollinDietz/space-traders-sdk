@@ -20,7 +20,7 @@ pub struct AgentData {
 
 #[derive(Debug, PartialEq)]
 pub struct Agent {
-    credentials: Arc<SpaceTradersClient>,
+    client: Arc<SpaceTradersClient>,
     data: AgentData,
     contracts: Vec<Contract>,
 }
@@ -38,14 +38,14 @@ impl Agent {
         origin_client: &SpaceTradersClient,
         data: RegistrationResponseData,
     ) -> Self {
-        let credentials = Arc::new(SpaceTradersClient::clone_with_token(
+        let client = Arc::new(SpaceTradersClient::clone_with_token(
             origin_client,
             &data.token,
         ));
 
         Agent {
-            credentials: credentials.clone(),
-            contracts: vec![Contract::new(credentials.clone(), data.contract)],
+            client: client.clone(),
+            contracts: vec![Contract::new(client.clone(), data.contract)],
             data: data.agent,
         }
     }
@@ -63,7 +63,10 @@ impl Agent {
 pub mod tests {
     use super::*;
 
-    use crate::{account::tests::some_registration_response_data, string};
+    use crate::{
+        account::tests::{some_agent_token, some_registration_response_data},
+        string,
+    };
 
     pub fn some_agent_data() -> AgentData {
         AgentData {
@@ -111,11 +114,17 @@ pub mod tests {
     #[test]
     fn agent_should_be_constructable_with_agent_data_and_be_able_to_list_contracts() {
         let data = some_registration_response_data();
-        let expected = vec![data.contract.clone()];
+
+        let expected = vec![Contract::new(
+            Arc::new(SpaceTradersClient::new(&some_agent_token())),
+            data.contract.clone(),
+        )];
+
         let agent = Agent::from_registration_data(
             &SpaceTradersClient::new(""),
             some_registration_response_data(),
         );
-        // assert_eq!(&expected, agent.list_contracts());
+
+        assert_eq!(&expected, agent.list_contracts());
     }
 }
