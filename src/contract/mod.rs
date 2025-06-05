@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use reqwest::Error;
+use reqwest::{Error, StatusCode};
 use serde_derive::Deserialize;
 
 use crate::{agent::AgentData, faction::Factions, space_traders_client::SpaceTradersClient};
@@ -80,22 +80,15 @@ impl Contract {
     }
 
     pub async fn accept(&self) -> Result<Contract, Error> {
-        let response = self
+        let response: ContractAcceptResponse = self
             .client
-            .post(&format!("my/contracts/{}/accept", &self.data.id))
+            .post(
+                &format!("my/contracts/{}/accept", &self.data.id),
+                StatusCode::OK,
+            )
             .await?;
 
-        // TODO move this down one level
-        if response.status() == 200 {
-            let text = response.text().await?;
-            let data: ContractAcceptResponse = serde_json::from_str(text.as_str()).unwrap();
-            Ok(Contract::new(self.client.clone(), data.data.contract))
-        } else {
-            println!("{}", response.status());
-            let error_text = response.text().await?;
-            println!("{}", error_text);
-            todo!()
-        }
+        Ok(Contract::new(self.client.clone(), response.data.contract))
     }
 }
 

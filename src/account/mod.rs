@@ -45,18 +45,12 @@ impl Account {
     }
 
     pub async fn register_agent(&self, request: RegistrationRequest) -> Result<Agent, Error> {
-        let response = self.client.post_with_body("register", &request).await?;
+        let response: RegistrationResponse = self
+            .client
+            .post_with_body("register", &request, reqwest::StatusCode::CREATED)
+            .await?;
 
-        // TODO: Move this logic down one level
-        if response.status() == 201 {
-            let data: RegistrationResponse = response.json().await?;
-            Ok(Agent::from_registration_data(&self.client, data.data))
-        } else {
-            println!("{}", response.status());
-            let error_text = response.text().await?;
-            println!("{}", error_text);
-            todo!()
-        }
+        Ok(Agent::from_registration_data(&self.client, response.data))
     }
 }
 
