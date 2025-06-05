@@ -19,7 +19,7 @@ pub struct Trait {
     pub description: String,
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum Factions {
     Cosmic,
