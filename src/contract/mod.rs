@@ -85,6 +85,7 @@ impl Contract {
             .post(&format!("my/contracts/{}/accept", &self.data.id))
             .await?;
 
+        // TODO move this down one level
         if response.status() == 200 {
             let text = response.text().await?;
             let data: ContractAcceptResponse = serde_json::from_str(text.as_str()).unwrap();
@@ -168,7 +169,6 @@ pub mod tests {
 
             let expected = some_contract_data();
 
-            assert_eq!(expected.terms, actual.terms);
             assert_eq!(expected, actual);
         }
     }

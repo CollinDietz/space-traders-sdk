@@ -29,14 +29,6 @@ pub struct Agent {
 }
 
 impl Agent {
-    // pub fn from_agent_data(data: AgentData) -> Self {
-    //     Agent {
-    //         token: "".to_string(),
-    //         data,
-    //         contracts: vec![],
-    //     }
-    // }
-
     pub fn from_registration_data(
         origin_client: &SpaceTradersClient,
         data: RegistrationResponseData,
@@ -99,11 +91,6 @@ pub mod tests {
         let expected = some_agent_data();
 
         assert_eq!(expected, actual);
-    }
-
-    #[test]
-    fn agent_should_be_constructable_with_agent_data() {
-        // let _ = Agent::from_agent_data(some_agent_data());
     }
 
     #[test]

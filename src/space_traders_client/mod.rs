@@ -97,3 +97,5 @@ impl SpaceTradersClient {
         .await
     }
 }
+
+// TODO: Add tests
