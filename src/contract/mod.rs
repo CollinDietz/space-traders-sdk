@@ -71,7 +71,7 @@ pub struct ContractAcceptResponse {
 #[derive(Debug, PartialEq)]
 pub struct Contract {
     client: Arc<SpaceTradersClient>,
-    pub data: ContractData,
+    data: ContractData,
 }
 
 impl Contract {
@@ -83,7 +83,7 @@ impl Contract {
         self.data.accepted
     }
 
-    pub async fn accept(&self) -> Result<Contract, Error> {
+    pub async fn accept(&mut self) -> Result<(), Error> {
         let response: ContractAcceptResponse = self
             .client
             .post(
@@ -92,7 +92,9 @@ impl Contract {
             )
             .await?;
 
-        Ok(Contract::new(self.client.clone(), response.data.contract))
+        self.data = response.data.contract;
+
+        Ok(())
     }
 }
 
@@ -210,12 +212,12 @@ pub mod tests {
 
             let space_traders_client =
                 SpaceTradersClient::with_url(&mock_server.url(), &some_token());
-            let contract = Contract::new(Arc::new(space_traders_client), data);
-            let accepted_contract = contract.accept().await.unwrap();
-
+            let mut contract = Contract::new(Arc::new(space_traders_client), data);
             assert!(!contract.is_accepted());
-            assert_eq!(accepted_contract.data, some_accepted_contract_data());
-            assert!(accepted_contract.is_accepted());
+
+            contract.accept().await.unwrap();
+            assert_eq!(contract.data, some_accepted_contract_data());
+            assert!(contract.is_accepted());
         }
     }
 }
