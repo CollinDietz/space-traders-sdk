@@ -163,17 +163,40 @@ impl SpaceTradersClient {
         }
     }
 
-    async fn _get(
-        client: &reqwest::Client,
-        url: &str,
+    pub async fn get<R: DeserializeOwned>(
+        &self,
         endpoint: &str,
-        token: &str,
-    ) -> Result<Response, reqwest::Error> {
-        client
-            .get(&format!("{}/{}", url, endpoint))
-            .bearer_auth(token)
-            .send()
-            .await
+        success_status: StatusCode,
+    ) -> Result<R, Error> {
+        let request = self
+            .client
+            .get(&format!("{}/{}", self.url, endpoint))
+            .bearer_auth(&self.token)
+            .header("Accept", "application/json");
+
+        let result = request.send().await;
+
+        match result {
+            Ok(response) => {
+                if response.status() == success_status {
+                    match response.json::<R>().await {
+                        Ok(res) => Ok(res),
+                        Err(_e) => todo!(),
+                    }
+                } else {
+                    match response.json::<Error>().await {
+                        Ok(err) => Err(err),
+                        Err(e) => {
+                            print!("{:?}", e);
+                            todo!()
+                        }
+                    }
+                }
+            }
+            Err(_error) => {
+                todo!()
+            }
+        }
     }
 
     async fn internal_post<T: Serialize + ?Sized, R: DeserializeOwned>(
