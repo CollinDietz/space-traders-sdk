@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use derivative::Derivative;
-use reqwest::{Response, StatusCode};
+use reqwest::{RequestBuilder, StatusCode};
 use serde::{de::DeserializeOwned, Serialize};
 use serde_derive::Deserialize;
 use serde_repr::Deserialize_repr;
@@ -135,7 +135,8 @@ pub struct Error {
 pub struct SpaceTradersClient {
     #[derivative(PartialEq = "ignore")]
     client: Arc<reqwest::Client>,
-    pub url: String,
+    url: String,
+    // TODO: optional
     token: String,
 }
 
@@ -163,6 +164,52 @@ impl SpaceTradersClient {
         }
     }
 
+    async fn send_and_handle_request_response<R: DeserializeOwned>(
+        request: RequestBuilder,
+        success_status: StatusCode,
+    ) -> Result<R, Error> {
+        let result = request.send().await;
+
+        match result {
+            Ok(response) => {
+                if response.status() == success_status {
+                    match response.json::<R>().await {
+                        Ok(res) => Ok(res),
+                        Err(_e) => todo!(),
+                    }
+                } else {
+                    match response.json::<Error>().await {
+                        Ok(err) => Err(err),
+                        Err(_e) => todo!(),
+                    }
+                }
+            }
+            Err(_error) => {
+                todo!()
+            }
+        }
+    }
+
+    async fn internal_post<T: Serialize + ?Sized, R: DeserializeOwned>(
+        &self,
+        endpoint: &str,
+        body: Option<&T>,
+        success_status: StatusCode,
+    ) -> Result<R, Error> {
+        let mut request = self
+            .client
+            .post(&format!("{}/{}", self.url, endpoint))
+            .bearer_auth(&self.token)
+            .header("Accept", "application/json");
+
+        if let Some(body) = body {
+            request = request.json(body);
+        };
+
+        SpaceTradersClient::send_and_handle_request_response(request, success_status).await
+    }
+
+    // TODO: test?
     pub async fn get<R: DeserializeOwned>(
         &self,
         endpoint: &str,
@@ -174,68 +221,7 @@ impl SpaceTradersClient {
             .bearer_auth(&self.token)
             .header("Accept", "application/json");
 
-        let result = request.send().await;
-
-        match result {
-            Ok(response) => {
-                if response.status() == success_status {
-                    match response.json::<R>().await {
-                        Ok(res) => Ok(res),
-                        Err(_e) => todo!(),
-                    }
-                } else {
-                    match response.json::<Error>().await {
-                        Ok(err) => Err(err),
-                        Err(e) => {
-                            print!("{:?}", e);
-                            todo!()
-                        }
-                    }
-                }
-            }
-            Err(_error) => {
-                todo!()
-            }
-        }
-    }
-
-    async fn internal_post<T: Serialize + ?Sized, R: DeserializeOwned>(
-        client: &reqwest::Client,
-        url: &str,
-        endpoint: &str,
-        token: &str,
-        body: Option<&T>,
-        success_status: StatusCode,
-    ) -> Result<R, Error> {
-        let mut request = client
-            .post(&format!("{}/{}", url, endpoint))
-            .bearer_auth(token)
-            .header("Accept", "application/json");
-
-        if let Some(body) = body {
-            request = request.json(body);
-        };
-
-        let result = request.send().await;
-
-        match result {
-            Ok(response) => {
-                if response.status() == success_status {
-                    match response.json::<R>().await {
-                        Ok(res) => Ok(res),
-                        Err(_e) => todo!(),
-                    }
-                } else {
-                    match response.json::<Error>().await {
-                        Ok(err) => Err(err),
-                        Err(_e) => todo!(),
-                    }
-                }
-            }
-            Err(_error) => {
-                todo!()
-            }
-        }
+        SpaceTradersClient::send_and_handle_request_response(request, success_status).await?
     }
 
     pub async fn post<R: DeserializeOwned>(
@@ -243,15 +229,8 @@ impl SpaceTradersClient {
         endpoint: &str,
         success_status: StatusCode,
     ) -> Result<R, Error> {
-        SpaceTradersClient::internal_post::<serde_json::Value, R>(
-            &self.client,
-            &self.url,
-            endpoint,
-            &self.token,
-            None,
-            success_status,
-        )
-        .await
+        self.internal_post::<serde_json::Value, R>(endpoint, None, success_status)
+            .await
     }
 
     pub async fn post_with_body<T: Serialize + ?Sized, R: DeserializeOwned>(
@@ -260,15 +239,8 @@ impl SpaceTradersClient {
         body: &T,
         success_status: StatusCode,
     ) -> Result<R, Error> {
-        SpaceTradersClient::internal_post(
-            &self.client,
-            &self.url,
-            endpoint,
-            &self.token,
-            Some(body),
-            success_status,
-        )
-        .await
+        self.internal_post(endpoint, Some(body), success_status)
+            .await
     }
 }
 
@@ -421,4 +393,3 @@ pub mod tests {
         assert_eq!(expected, actual);
     }
 }
-// TODO: Add tests

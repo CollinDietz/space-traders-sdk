@@ -27,6 +27,7 @@ impl System {
         }
     }
 
+    // Should be able to search for a certain type
     pub async fn list_waypoints(&self) -> Result<Vec<Waypoint>, Error> {
         let response: WaypointResponse = self
             .client
