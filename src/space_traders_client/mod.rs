@@ -155,11 +155,11 @@ impl SpaceTradersClient {
         }
     }
 
-    pub fn with_url(url: &str, token: &str) -> Self {
+    pub fn with_url(url: &str, token: Option<String>) -> Self {
         SpaceTradersClient {
             client: Arc::new(reqwest::Client::new()),
             url: url.to_string(),
-            token: Some(token.to_string()),
+            token,
         }
     }
 
@@ -174,7 +174,9 @@ impl SpaceTradersClient {
                 if response.status() == success_status {
                     match response.json::<R>().await {
                         Ok(res) => Ok(res),
-                        Err(_e) => todo!(),
+                        Err(_e) => {
+                            todo!()
+                        }
                     }
                 } else {
                     match response.json::<Error>().await {
@@ -226,7 +228,7 @@ impl SpaceTradersClient {
             request = request.bearer_auth(token);
         }
 
-        SpaceTradersClient::send_and_handle_request_response(request, success_status).await?
+        SpaceTradersClient::send_and_handle_request_response(request, success_status).await
     }
 
     pub async fn post<R: DeserializeOwned>(
@@ -265,7 +267,7 @@ pub mod tests {
             mock_response::<serde_json::Value>(RequestMethod::Post, "register", 401, None, None)
                 .await;
 
-        let client = SpaceTradersClient::with_url(&mock_server.url(), &string!(""));
+        let client = SpaceTradersClient::with_url(&mock_server.url(), None);
 
         let _response: Error = client
             .post::<serde_json::Value>("register", reqwest::StatusCode::CREATED)

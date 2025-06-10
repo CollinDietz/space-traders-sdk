@@ -186,8 +186,8 @@ pub mod tests {
             string,
         };
 
-        fn some_token() -> String {
-            string!("some_token")
+        fn some_token() -> Option<String> {
+            Some(string!("some_token"))
         }
 
         #[test]
@@ -207,13 +207,13 @@ pub mod tests {
                 RequestMethod::Post,
                 &format!("my/contracts/{}/accept", &data.id),
                 200,
-                Some(some_token()),
+                some_token(),
                 None,
             )
             .await;
 
             let space_traders_client =
-                SpaceTradersClient::with_url(&mock_server.url(), &some_token());
+                SpaceTradersClient::with_url(&mock_server.url(), some_token());
             let mut contract = Contract::new(Arc::new(space_traders_client), data);
             assert!(!contract.is_accepted());
 

@@ -69,7 +69,7 @@ pub mod tests {
         )
         .await;
 
-        let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), "".into()));
+        let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
 
         let system = System::new(&client, "X1-MH3");
 
