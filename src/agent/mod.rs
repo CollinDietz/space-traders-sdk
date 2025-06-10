@@ -96,7 +96,7 @@ pub mod tests {
     #[test]
     fn agent_should_be_constructable_with_registration_data() {
         let _ = Agent::from_registration_data(
-            &SpaceTradersClient::new(""),
+            &SpaceTradersClient::new(Some("".to_string())),
             some_registration_response_data(),
         );
     }
@@ -108,7 +108,7 @@ pub mod tests {
         let expected = vec![&data.contract.id];
 
         let agent = Agent::from_registration_data(
-            &SpaceTradersClient::new(""),
+            &SpaceTradersClient::new(Some("".to_string())),
             some_registration_response_data(),
         );
 

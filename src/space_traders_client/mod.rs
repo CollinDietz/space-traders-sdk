@@ -136,22 +136,21 @@ pub struct SpaceTradersClient {
     #[derivative(PartialEq = "ignore")]
     client: Arc<reqwest::Client>,
     url: String,
-    // TODO: optional
-    token: String,
+    token: Option<String>,
 }
 
 impl SpaceTradersClient {
-    pub fn new(token: &str) -> Self {
+    pub fn new(token: Option<String>) -> Self {
         SpaceTradersClient {
             client: Arc::new(reqwest::Client::new()),
             url: REAL_SERVER.to_string(),
-            token: token.to_string(),
+            token,
         }
     }
 
     pub fn clone_with_token(client: &SpaceTradersClient, new_token: &str) -> Self {
         SpaceTradersClient {
-            token: new_token.to_string(),
+            token: Some(new_token.to_string()),
             ..client.clone()
         }
     }
@@ -160,7 +159,7 @@ impl SpaceTradersClient {
         SpaceTradersClient {
             client: Arc::new(reqwest::Client::new()),
             url: url.to_string(),
-            token: token.to_string(),
+            token: Some(token.to_string()),
         }
     }
 
@@ -199,12 +198,15 @@ impl SpaceTradersClient {
         let mut request = self
             .client
             .post(&format!("{}/{}", self.url, endpoint))
-            .bearer_auth(&self.token)
             .header("Accept", "application/json");
 
         if let Some(body) = body {
             request = request.json(body);
         };
+
+        if let Some(token) = &self.token {
+            request = request.bearer_auth(token);
+        }
 
         SpaceTradersClient::send_and_handle_request_response(request, success_status).await
     }
@@ -215,11 +217,14 @@ impl SpaceTradersClient {
         endpoint: &str,
         success_status: StatusCode,
     ) -> Result<R, Error> {
-        let request = self
+        let mut request = self
             .client
             .get(&format!("{}/{}", self.url, endpoint))
-            .bearer_auth(&self.token)
             .header("Accept", "application/json");
+
+        if let Some(token) = &self.token {
+            request = request.bearer_auth(token);
+        }
 
         SpaceTradersClient::send_and_handle_request_response(request, success_status).await?
     }

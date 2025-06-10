@@ -35,7 +35,7 @@ pub struct Account {
 impl Account {
     pub fn new(account_token: String) -> Self {
         Account {
-            client: SpaceTradersClient::new(&account_token),
+            client: SpaceTradersClient::new(Some(account_token)),
         }
     }
 

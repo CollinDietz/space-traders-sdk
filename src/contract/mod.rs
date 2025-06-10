@@ -192,8 +192,10 @@ pub mod tests {
 
         #[test]
         fn should_be_constructable_from_contract_data() {
-            let contract =
-                Contract::new(Arc::new(SpaceTradersClient::new("")), some_contract_data());
+            let contract = Contract::new(
+                Arc::new(SpaceTradersClient::new(Some("".to_string()))),
+                some_contract_data(),
+            );
             assert!(!contract.is_accepted())
         }
 
