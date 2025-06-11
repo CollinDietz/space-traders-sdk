@@ -214,9 +214,10 @@ impl SpaceTradersClient {
     }
 
     // TODO: test?
-    pub async fn get<R: DeserializeOwned>(
+    pub async fn get<T: Serialize + ?Sized, R: DeserializeOwned>(
         &self,
         endpoint: &str,
+        query_params: Option<&T>,
         success_status: StatusCode,
     ) -> Result<R, Error> {
         let mut request = self
@@ -226,6 +227,10 @@ impl SpaceTradersClient {
 
         if let Some(token) = &self.token {
             request = request.bearer_auth(token);
+        }
+
+        if let Some(query_params) = query_params {
+            request = request.query(query_params);
         }
 
         SpaceTradersClient::send_and_handle_request_response(request, success_status).await
