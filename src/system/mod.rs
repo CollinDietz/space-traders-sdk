@@ -27,18 +27,14 @@ impl System {
         }
     }
 
-    // Should be able to search for a certain type
+    // Should be able to search for a certain trait
     pub async fn list_waypoints(
         &self,
         waypoint_type: Option<WaypointType>,
     ) -> Result<Vec<Waypoint>, Error> {
-        let mut query_params: Option<Vec<(&'static str, String)>> = None;
+        let query_params: Option<Vec<(&'static str, WaypointType)>> =
+            waypoint_type.map(|waypoint_type| vec![("type", waypoint_type)]);
 
-        if let Some(waypoint_type) = waypoint_type {
-            // Serialize WaypointType to a string for the query parameter
-            let type_str = serde_json::to_string(&waypoint_type).unwrap();
-            query_params = Some(vec![("type", type_str.replace("\"", ""))]);
-        }
         let response: WaypointResponse = self
             .client
             .get(
