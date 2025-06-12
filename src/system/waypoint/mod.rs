@@ -71,7 +71,7 @@ pub enum WaypointType {
     FuelStation,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum WaypointTraitSymbol {
     Uncharted,
@@ -358,6 +358,58 @@ pub mod tests {
         }
     }
 
+    pub fn some_moon() -> Waypoint {
+        Waypoint {
+          symbol: string!("X1-MH3-A2"),
+          waypoint_type: WaypointType::Moon,
+          system_symbol: string!("X1-MH3"),
+          x: 15,
+          y: -19,
+          orbitals: vec![],
+          orbits: Some(string!("X1-MH3-A1")),
+          faction: Some(WaypointFaction { symbol: Factions::Cosmic }),
+          traits: vec![
+        WaypointTrait {
+            symbol: WaypointTraitSymbol::Volcanic,
+            name: string!("Volcanic"),
+            description: string!("A volatile world marked by intense volcanic activity, creating a hazardous environment with the potential for valuable resource extraction, such as rare metals and geothermal energy."),
+        },
+        WaypointTrait {
+            symbol: WaypointTraitSymbol::Outpost,
+            name: string!("Outpost"),
+            description: string!("A small, remote settlement providing essential services and a safe haven for travelers passing through."),
+        },
+        WaypointTrait {
+            symbol: WaypointTraitSymbol::ThinAtmosphere,
+            name: string!("Thin Atmosphere"),
+            description: string!("A location with a sparse atmosphere, making it difficult to support life without specialized life-support systems."),
+        },
+        WaypointTrait {
+            symbol: WaypointTraitSymbol::CorrosiveAtmosphere,
+            name: string!("Corrosive Atmosphere"),
+            description: string!("A hostile environment with an atmosphere that can rapidly degrade materials and equipment, requiring advanced engineering solutions to ensure the safety and longevity of structures and vehicles."),
+        },
+        WaypointTrait {
+            symbol: WaypointTraitSymbol::Marketplace,
+            name: string!("Marketplace"),
+            description: string!("A thriving center of commerce where traders from across the galaxy gather to buy, sell, and exchange goods."),
+        },
+        WaypointTrait {
+            symbol: WaypointTraitSymbol::Shipyard,
+            name: string!("Shipyard"),
+            description: string!("A bustling hub for the construction, repair, and sale of various spacecraft, from humble shuttles to mighty warships."),
+        },
+          ],
+          modifiers: Some(vec![]),
+          chart: Some(Chart {
+        waypoint_symbol: string!("X1-MH3-A2"),
+        submitted_by: Some(string!("COSMIC")),
+        submitted_on: Some(string!("2025-06-08T13:01:40.176Z")),
+          }),
+          is_under_construction: false,
+      }
+    }
+
     #[test]
     fn chart_should_be_deserializable() {
         let json_str = r#"
@@ -610,6 +662,68 @@ pub mod tests {
         let actual: Waypoint = serde_json::from_str(json_str).unwrap();
 
         let expected = some_asteroid();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn some_moon_should_be_deserializable() {
+        let json_str = r#"
+        {
+          "symbol": "X1-MH3-A2",
+          "type": "MOON",
+          "systemSymbol": "X1-MH3",
+          "x": 15,
+          "y": -19,
+          "orbitals": [],
+          "traits": [
+            {
+              "symbol": "VOLCANIC",
+              "name": "Volcanic",
+              "description": "A volatile world marked by intense volcanic activity, creating a hazardous environment with the potential for valuable resource extraction, such as rare metals and geothermal energy."
+            },
+            {
+              "symbol": "OUTPOST",
+              "name": "Outpost",
+              "description": "A small, remote settlement providing essential services and a safe haven for travelers passing through."
+            },
+            {
+              "symbol": "THIN_ATMOSPHERE",
+              "name": "Thin Atmosphere",
+              "description": "A location with a sparse atmosphere, making it difficult to support life without specialized life-support systems."
+            },
+            {
+              "symbol": "CORROSIVE_ATMOSPHERE",
+              "name": "Corrosive Atmosphere",
+              "description": "A hostile environment with an atmosphere that can rapidly degrade materials and equipment, requiring advanced engineering solutions to ensure the safety and longevity of structures and vehicles."
+            },
+            {
+              "symbol": "MARKETPLACE",
+              "name": "Marketplace",
+              "description": "A thriving center of commerce where traders from across the galaxy gather to buy, sell, and exchange goods."
+            },
+            {
+              "symbol": "SHIPYARD",
+              "name": "Shipyard",
+              "description": "A bustling hub for the construction, repair, and sale of various spacecraft, from humble shuttles to mighty warships."
+            }
+          ],
+          "isUnderConstruction": false,
+          "orbits": "X1-MH3-A1",
+          "faction": {
+            "symbol": "COSMIC"
+          },
+          "modifiers": [],
+          "chart": {
+            "waypointSymbol": "X1-MH3-A2",
+            "submittedBy": "COSMIC",
+            "submittedOn": "2025-06-08T13:01:40.176Z"
+          }
+        }"#;
+
+        let actual: Waypoint = serde_json::from_str(json_str).unwrap();
+
+        let expected = some_moon();
 
         assert_eq!(expected, actual);
     }

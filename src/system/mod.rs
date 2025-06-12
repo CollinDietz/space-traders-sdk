@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
-use serde_derive::Deserialize;
+use serde_derive::{Deserialize, Serialize};
 
 use crate::{
     space_traders_client::{Error, SpaceTradersClient},
-    system::waypoint::{Waypoint, WaypointType},
+    system::waypoint::{Waypoint, WaypointTraitSymbol, WaypointType},
 };
 
 pub mod waypoint;
@@ -19,6 +19,14 @@ pub struct WaypointResponse {
     data: Vec<Waypoint>,
 }
 
+#[derive(Serialize)]
+struct ListWayPointsParams {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<WaypointType>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#trait: Option<WaypointTraitSymbol>,
+}
+
 impl System {
     pub fn new(client: &Arc<SpaceTradersClient>, symbol: &str) -> Self {
         System {
@@ -31,15 +39,18 @@ impl System {
     pub async fn list_waypoints(
         &self,
         waypoint_type: Option<WaypointType>,
+        waypoint_trait: Option<WaypointTraitSymbol>,
     ) -> Result<Vec<Waypoint>, Error> {
-        let query_params: Option<Vec<(&'static str, WaypointType)>> =
-            waypoint_type.map(|waypoint_type| vec![("type", waypoint_type)]);
+        let query_params = ListWayPointsParams {
+            r#type: waypoint_type,
+            r#trait: waypoint_trait,
+        };
 
         let response: WaypointResponse = self
             .client
             .get(
                 &format!("systems/{}/waypoints", self.symbol),
-                query_params.as_deref(),
+                Some(&query_params),
                 reqwest::StatusCode::OK,
             )
             .await?;
@@ -60,9 +71,9 @@ pub mod tests {
             waypoint::{
                 tests::{
                     some_asteroid, some_asteroid_base, some_engineered_asteroid, some_fuel_station,
-                    some_planet,
+                    some_moon, some_planet,
                 },
-                WaypointType,
+                WaypointTraitSymbol, WaypointType,
             },
             System,
         },
@@ -83,7 +94,7 @@ pub mod tests {
 
         let system = System::new(&client, "X1-MH3");
 
-        let actual = system.list_waypoints(None).await.unwrap();
+        let actual = system.list_waypoints(None, None).await.unwrap();
 
         let expected = vec![
             some_planet(),
@@ -112,11 +123,36 @@ pub mod tests {
         let system = System::new(&client, "X1-MH3");
 
         let actual = system
-            .list_waypoints(Some(WaypointType::Planet))
+            .list_waypoints(Some(WaypointType::Planet), None)
             .await
             .unwrap();
 
         let expected = vec![some_planet()];
+
+        assert_eq!(expected, actual)
+    }
+
+    #[tokio::test]
+    async fn list_way_points_with_trait_shipyard_request_should_be_sent_parsed_and_returned() {
+        let mock_server = mock_response(
+            RequestMethod::Get,
+            "systems/X1-MH3/waypoints",
+            200,
+            None,
+            Some(&[("trait", "SHIPYARD")]),
+        )
+        .await;
+
+        let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
+
+        let system = System::new(&client, "X1-MH3");
+
+        let actual = system
+            .list_waypoints(None, Some(WaypointTraitSymbol::Shipyard))
+            .await
+            .unwrap();
+
+        let expected = vec![some_moon()];
 
         assert_eq!(expected, actual)
     }
