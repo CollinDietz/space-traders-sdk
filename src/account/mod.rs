@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use serde_derive::{Deserialize, Serialize};
 
 use crate::agent::{Agent, AgentData};
@@ -29,17 +31,11 @@ pub struct RegistrationResponse {
 
 #[derive(Debug)]
 pub struct Account {
-    client: SpaceTradersClient,
+    client: Arc<SpaceTradersClient>,
 }
 
 impl Account {
-    pub fn new(account_token: String) -> Self {
-        Account {
-            client: SpaceTradersClient::new(Some(account_token)),
-        }
-    }
-
-    pub fn with_client(client: SpaceTradersClient) -> Self {
+    pub fn new(client: Arc<SpaceTradersClient>) -> Self {
         Account { client }
     }
 
@@ -111,10 +107,12 @@ pub mod tests {
         )
         .await;
 
-        let account = Account::with_client(SpaceTradersClient::with_url(
+        let client = Arc::new(SpaceTradersClient::with_url(
             &mock_server.url(),
             some_token(),
         ));
+
+        let account = Account::new(client);
 
         let actual = account.register_agent(request).await.unwrap();
 

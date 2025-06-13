@@ -15,7 +15,8 @@ use space_traders_sdk::system::System;
 async fn can_register_agent_and_accept_contract() {
     dotenv().ok();
     let account_token = std::env::var("ACCOUNT_TOKEN").expect("ACCOUNT_TOKEN must be set.");
-    let account = Account::new(account_token);
+    let client = Arc::new(SpaceTradersClient::new(Some(account_token)));
+    let account = Account::new(client);
     let registration_request = RegistrationRequest {
         callsign: string!("SHOOTTEST6"),
         faction: Factions::Aegis,
