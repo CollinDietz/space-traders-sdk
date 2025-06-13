@@ -1,0 +1,64 @@
+{
+  "data": [
+    {
+      "symbol": "X1-MH3-A1",
+      "type": "PLANET",
+      "systemSymbol": "X1-MH3",
+      "x": 15,
+      "y": -19,
+      "orbitals": [
+        {
+          "symbol": "X1-MH3-A2"
+        },
+        {
+          "symbol": "X1-MH3-A3"
+        },
+        {
+          "symbol": "X1-MH3-A4"
+        }
+      ],
+      "traits": [
+        {
+          "symbol": "ROCKY",
+          "name": "Rocky",
+          "description": "A world with a rugged, rocky landscape, rich in minerals and other resources, providing a variety of opportunities for mining, research, and exploration."
+        },
+        {
+          "symbol": "OUTPOST",
+          "name": "Outpost",
+          "description": "A small, remote settlement providing essential services and a safe haven for travelers passing through."
+        },
+        {
+          "symbol": "THIN_ATMOSPHERE",
+          "name": "Thin Atmosphere",
+          "description": "A location with a sparse atmosphere, making it difficult to support life without specialized life-support systems."
+        },
+        {
+          "symbol": "DRY_SEABEDS",
+          "name": "Dry Seabeds",
+          "description": "Vast, desolate landscapes that once held oceans, now exposing the remnants of ancient marine life and providing opportunities for the discovery of valuable resources."
+        },
+        {
+          "symbol": "MARKETPLACE",
+          "name": "Marketplace",
+          "description": "A thriving center of commerce where traders from across the galaxy gather to buy, sell, and exchange goods."
+        }
+      ],
+      "isUnderConstruction": false,
+      "faction": {
+        "symbol": "COSMIC"
+      },
+      "modifiers": [],
+      "chart": {
+        "waypointSymbol": "X1-MH3-A1",
+        "submittedBy": "COSMIC",
+        "submittedOn": "2025-06-08T13:01:40.136Z"
+      }
+    }
+  ],
+  "meta": {
+    "total": 7,
+    "page": 1,
+    "limit": 10
+  }
+}
