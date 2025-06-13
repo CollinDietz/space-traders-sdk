@@ -4,7 +4,7 @@ use serde_derive::{Deserialize, Serialize};
 
 use crate::{
     space_traders_client::{Error, SpaceTradersClient},
-    system::waypoint::{Waypoint, WaypointTraitSymbol, WaypointType},
+    system::waypoint::{Waypoint, WaypointData, WaypointTraitSymbol, WaypointType},
 };
 
 pub mod waypoint;
@@ -16,7 +16,7 @@ pub struct System {
 
 #[derive(Deserialize)]
 pub struct WaypointResponse {
-    data: Vec<Waypoint>,
+    data: Vec<WaypointData>,
 }
 
 #[derive(Serialize)]
@@ -55,7 +55,11 @@ impl System {
             )
             .await?;
 
-        Ok(response.data)
+        Ok(response
+            .data
+            .into_iter()
+            .map(|data| Waypoint::new(data))
+            .collect())
     }
 }
 
