@@ -1,8 +1,15 @@
 use std::sync::Arc;
 
 use serde_derive::{Deserialize, Serialize};
+use serde_json::Value;
 
-use crate::{faction::Factions, space_traders_client::SpaceTradersClient};
+use crate::{
+    faction::Factions,
+    space_traders_client::{Error, SpaceTradersClient},
+    system::waypoint::shipyard::Shipyard,
+};
+
+pub mod shipyard;
 
 #[derive(Debug, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -170,13 +177,32 @@ impl Waypoint {
             data,
         }
     }
+
+    pub async fn get_shipyard(&self) -> Result<Shipyard, Error> {
+        self.client
+            .get::<Value, Shipyard>(
+                &format!(
+                    "systems/{}/waypoints/{}/shipyard",
+                    self.data.system_symbol, self.data.symbol
+                ),
+                None,
+                reqwest::StatusCode::OK,
+            )
+            .await
+    }
 }
 
 #[cfg(test)]
 pub mod tests {
     use std::vec;
 
-    use crate::{faction::Factions, string, system::waypoint::*};
+    use mock_server::{mock_response, RequestMethod};
+
+    use crate::{
+        faction::Factions,
+        string,
+        system::waypoint::{shipyard::tests::some_shipyard, *},
+    };
 
     fn some_chart() -> Chart {
         Chart {
@@ -425,6 +451,28 @@ pub mod tests {
           }),
           is_under_construction: false,
       }
+    }
+
+    #[tokio::test]
+    async fn get_shipyard_request_should_be_sent_parsed_and_returned_for_waypoint_that_has_shipyard(
+    ) {
+        let mock_server = mock_response::<serde_json::Value>(
+            RequestMethod::Get,
+            "systems/X1-MH3/waypoints/X1-MH3-A2/shipyard",
+            200,
+            None,
+            None,
+        )
+        .await;
+
+        let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
+
+        let waypoint = Waypoint::new(client.clone(), some_moon());
+        let actual = waypoint.get_shipyard().await.unwrap();
+
+        let expected = some_shipyard();
+
+        assert_eq!(expected, actual)
     }
 
     #[test]
