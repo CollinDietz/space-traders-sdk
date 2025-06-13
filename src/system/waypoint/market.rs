@@ -2,7 +2,7 @@ use serde_derive::Deserialize;
 
 #[derive(Debug, PartialEq, Deserialize)]
 pub struct MarketResponse {
-    data: Market,
+    pub data: Market,
 }
 
 #[derive(Debug, PartialEq, Deserialize)]

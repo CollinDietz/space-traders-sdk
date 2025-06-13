@@ -5,7 +5,10 @@ use serde_derive::{Deserialize, Serialize};
 use crate::{
     faction::Factions,
     space_traders_client::{Error, SpaceTradersClient},
-    system::waypoint::{market::MarketResponse, shipyard::ShipyardResponse},
+    system::waypoint::{
+        market::{Market, MarketResponse},
+        shipyard::{Shipyard, ShipyardResponse},
+    },
 };
 
 pub mod market;
@@ -180,8 +183,9 @@ impl Waypoint {
 
     // curl https://api.spacetraders.io/v2/systems/X1-MH3/waypoints/X1-MH3-A2/market
 
-    pub async fn get_shipyard(&self) -> Result<ShipyardResponse, Error> {
-        self.client
+    pub async fn get_shipyard(&self) -> Result<Shipyard, Error> {
+        let response: ShipyardResponse = self
+            .client
             .get(
                 &format!(
                     "systems/{}/waypoints/{}/shipyard",
@@ -190,11 +194,14 @@ impl Waypoint {
                 None::<&()>,
                 reqwest::StatusCode::OK,
             )
-            .await
+            .await?;
+
+        Ok(response.data)
     }
 
-    pub async fn get_market(&self) -> Result<MarketResponse, Error> {
-        self.client
+    pub async fn get_market(&self) -> Result<Market, Error> {
+        let response: MarketResponse = self
+            .client
             .get(
                 &format!(
                     "systems/{}/waypoints/{}/market",
@@ -203,7 +210,9 @@ impl Waypoint {
                 None::<&()>,
                 reqwest::StatusCode::OK,
             )
-            .await
+            .await?;
+
+        Ok(response.data)
     }
 }
 
@@ -216,9 +225,7 @@ pub mod tests {
     use crate::{
         faction::Factions,
         string,
-        system::waypoint::{
-            market::tests::some_market_response, shipyard::tests::some_shipyard, *,
-        },
+        system::waypoint::{market::tests::some_market, shipyard::tests::some_shipyard, *},
     };
 
     fn some_chart() -> Chart {
@@ -508,7 +515,7 @@ pub mod tests {
         let waypoint = Waypoint::new(client.clone(), some_moon());
         let actual = waypoint.get_market().await.unwrap();
 
-        let expected = some_market_response();
+        let expected = some_market();
 
         assert_eq!(expected, actual)
     }

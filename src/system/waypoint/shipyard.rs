@@ -7,7 +7,7 @@ use crate::{
 
 #[derive(Debug, PartialEq, Deserialize)]
 pub struct ShipyardResponse {
-    data: Shipyard,
+    pub data: Shipyard,
 }
 
 #[derive(Debug, PartialEq, Deserialize)]
@@ -90,25 +90,29 @@ pub mod tests {
         system::waypoint::shipyard::{ShipType, ShipTypeWrapper, Shipyard, ShipyardResponse},
     };
 
-    pub fn some_shipyard() -> ShipyardResponse {
+    pub fn some_shipyard() -> Shipyard {
+        Shipyard {
+            symbol: string!("X1-MH3-A2"),
+            ship_types: vec![
+                ShipTypeWrapper {
+                    r#type: ShipType::Probe,
+                },
+                ShipTypeWrapper {
+                    r#type: ShipType::LightShuttle,
+                },
+                ShipTypeWrapper {
+                    r#type: ShipType::LightHauler,
+                },
+            ],
+            transactions: None,
+            ships: None,
+            modifications_fee: 100,
+        }
+    }
+
+    pub fn some_shipyard_response() -> ShipyardResponse {
         ShipyardResponse {
-            data: Shipyard {
-                symbol: string!("X1-MH3-A2"),
-                ship_types: vec![
-                    ShipTypeWrapper {
-                        r#type: ShipType::Probe,
-                    },
-                    ShipTypeWrapper {
-                        r#type: ShipType::LightShuttle,
-                    },
-                    ShipTypeWrapper {
-                        r#type: ShipType::LightHauler,
-                    },
-                ],
-                transactions: None,
-                ships: None,
-                modifications_fee: 100,
-            },
+            data: some_shipyard(),
         }
     }
 
@@ -134,7 +138,7 @@ pub mod tests {
         }"#;
 
         let actual: ShipyardResponse = serde_json::from_str(json_str).unwrap();
-        let expected = some_shipyard();
+        let expected = some_shipyard_response();
 
         assert_eq!(expected, actual);
     }
