@@ -28,9 +28,9 @@ struct ListWayPointsParams {
 }
 
 impl System {
-    pub fn new(client: &Arc<SpaceTradersClient>, symbol: &str) -> Self {
+    pub fn new(client: Arc<SpaceTradersClient>, symbol: &str) -> Self {
         System {
-            client: client.clone(),
+            client: client,
             symbol: symbol.into(),
         }
     }
@@ -58,7 +58,7 @@ impl System {
         Ok(response
             .data
             .into_iter()
-            .map(|data| Waypoint::new(data))
+            .map(|data| Waypoint::new(self.client.clone(), data))
             .collect())
     }
 }
@@ -77,7 +77,7 @@ pub mod tests {
                     some_asteroid, some_asteroid_base, some_engineered_asteroid, some_fuel_station,
                     some_moon, some_planet,
                 },
-                WaypointTraitSymbol, WaypointType,
+                Waypoint, WaypointTraitSymbol, WaypointType,
             },
             System,
         },
@@ -96,16 +96,16 @@ pub mod tests {
 
         let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
 
-        let system = System::new(&client, "X1-MH3");
+        let system = System::new(client.clone(), "X1-MH3");
 
         let actual = system.list_waypoints(None, None).await.unwrap();
 
         let expected = vec![
-            some_planet(),
-            some_engineered_asteroid(),
-            some_fuel_station(),
-            some_asteroid_base(),
-            some_asteroid(),
+            Waypoint::new(client.clone(), some_planet()),
+            Waypoint::new(client.clone(), some_engineered_asteroid()),
+            Waypoint::new(client.clone(), some_fuel_station()),
+            Waypoint::new(client.clone(), some_asteroid_base()),
+            Waypoint::new(client.clone(), some_asteroid()),
         ];
 
         assert_eq!(expected, actual)
@@ -124,14 +124,14 @@ pub mod tests {
 
         let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
 
-        let system = System::new(&client, "X1-MH3");
+        let system = System::new(client.clone(), "X1-MH3");
 
         let actual = system
             .list_waypoints(Some(WaypointType::Planet), None)
             .await
             .unwrap();
 
-        let expected = vec![some_planet()];
+        let expected = vec![Waypoint::new(client.clone(), some_planet())];
 
         assert_eq!(expected, actual)
     }
@@ -149,14 +149,14 @@ pub mod tests {
 
         let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
 
-        let system = System::new(&client, "X1-MH3");
+        let system = System::new(client.clone(), "X1-MH3");
 
         let actual = system
             .list_waypoints(None, Some(WaypointTraitSymbol::Shipyard))
             .await
             .unwrap();
 
-        let expected = vec![some_moon()];
+        let expected = vec![Waypoint::new(client.clone(), some_moon())];
 
         assert_eq!(expected, actual)
     }

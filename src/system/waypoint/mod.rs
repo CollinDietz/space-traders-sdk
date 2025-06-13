@@ -1,6 +1,8 @@
+use std::sync::Arc;
+
 use serde_derive::{Deserialize, Serialize};
 
-use crate::faction::Factions;
+use crate::{faction::Factions, space_traders_client::SpaceTradersClient};
 
 #[derive(Debug, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -158,11 +160,15 @@ pub enum WaypointModifierSymbol {
 #[derive(Debug, PartialEq)]
 pub struct Waypoint {
     data: WaypointData,
+    client: Arc<SpaceTradersClient>,
 }
 
 impl Waypoint {
-    pub fn new(data: WaypointData) -> Self {
-        Waypoint { data }
+    pub fn new(client: Arc<SpaceTradersClient>, data: WaypointData) -> Self {
+        Waypoint {
+            client: client,
+            data,
+        }
     }
 }
 
@@ -180,9 +186,8 @@ pub mod tests {
         }
     }
 
-    pub fn some_planet() -> Waypoint {
-        Waypoint{ data:
-          WaypointData {
+    pub fn some_planet() -> WaypointData {
+        WaypointData {
             symbol: string!("X1-MH3-A1"),
             waypoint_type: WaypointType::Planet,
             system_symbol: string!("X1-MH3"),
@@ -230,12 +235,10 @@ pub mod tests {
             }),
             is_under_construction: false,
         }
-      }
     }
 
-    pub fn some_engineered_asteroid() -> Waypoint {
-        Waypoint{ data:
-          WaypointData {
+    pub fn some_engineered_asteroid() -> WaypointData {
+        WaypointData {
             symbol: string!("X1-MH3-FE5Z"),
             waypoint_type: WaypointType::EngineeredAsteroid,
             system_symbol: string!("X1-MH3"),
@@ -268,13 +271,11 @@ pub mod tests {
             submitted_on: Some(string!("2025-06-08T13:01:40.136Z")),
             }),
             is_under_construction: false,
-        }
       }
     }
 
-    pub fn some_fuel_station() -> Waypoint {
-        Waypoint{ data:
-          WaypointData {
+    pub fn some_fuel_station() -> WaypointData {
+        WaypointData {
             symbol: string!("X1-MH3-B6"),
             waypoint_type: WaypointType::FuelStation,
             system_symbol: string!("X1-MH3"),
@@ -297,13 +298,11 @@ pub mod tests {
             submitted_on: Some(string!("2025-06-08T13:01:40.136Z")),
             }),
             is_under_construction: false,
-        }
       }
     }
 
-    pub fn some_asteroid_base() -> Waypoint {
-        Waypoint{ data:
-          WaypointData {
+    pub fn some_asteroid_base() -> WaypointData {
+        WaypointData {
             symbol: string!("X1-MH3-B7"),
             waypoint_type: WaypointType::AsteroidBase,
             system_symbol: string!("X1-MH3"),
@@ -336,13 +335,11 @@ pub mod tests {
             submitted_on: Some(string!("2025-06-08T13:01:40.136Z")),
             }),
             is_under_construction: false,
-        }
       }
     }
 
-    pub fn some_asteroid() -> Waypoint {
-        Waypoint{ data:
-          WaypointData {
+    pub fn some_asteroid() -> WaypointData {
+        WaypointData {
             symbol: string!("X1-MH3-B8"),
             waypoint_type: WaypointType::Asteroid,
             system_symbol: string!("X1-MH3"),
@@ -375,13 +372,11 @@ pub mod tests {
             submitted_on: Some(string!("2025-06-08T13:01:40.136Z")),
             }),
             is_under_construction: false,
-        }
       }
     }
 
-    pub fn some_moon() -> Waypoint {
-        Waypoint{ data:
-          WaypointData {
+    pub fn some_moon() -> WaypointData {
+        WaypointData {
           symbol: string!("X1-MH3-A2"),
           waypoint_type: WaypointType::Moon,
           system_symbol: string!("X1-MH3"),
@@ -429,7 +424,6 @@ pub mod tests {
         submitted_on: Some(string!("2025-06-08T13:01:40.176Z")),
           }),
           is_under_construction: false,
-        }
       }
     }
 
@@ -508,11 +502,9 @@ pub mod tests {
           }
         }"#;
 
-        let data: WaypointData = serde_json::from_str(json_str).unwrap();
+        let expected: WaypointData = serde_json::from_str(json_str).unwrap();
 
-        let actual = Waypoint { data };
-
-        let expected = some_planet();
+        let actual = some_planet();
 
         assert_eq!(expected, actual);
     }
@@ -556,11 +548,9 @@ pub mod tests {
           }
         }"#;
 
-        let data: WaypointData = serde_json::from_str(json_str).unwrap();
+        let actual: WaypointData = serde_json::from_str(json_str).unwrap();
 
         let expected = some_engineered_asteroid();
-
-        let actual = Waypoint { data };
 
         assert_eq!(expected, actual);
     }
@@ -594,9 +584,7 @@ pub mod tests {
           }
         }"#;
 
-        let data: WaypointData = serde_json::from_str(json_str).unwrap();
-
-        let actual = Waypoint { data };
+        let actual: WaypointData = serde_json::from_str(json_str).unwrap();
 
         let expected = some_fuel_station();
 
@@ -642,11 +630,9 @@ pub mod tests {
           }
         }"#;
 
-        let data: WaypointData = serde_json::from_str(json_str).unwrap();
+        let actual: WaypointData = serde_json::from_str(json_str).unwrap();
 
         let expected = some_asteroid_base();
-
-        let actual = Waypoint { data };
 
         assert_eq!(expected, actual);
     }
@@ -690,11 +676,9 @@ pub mod tests {
           }
         }"#;
 
-        let data: WaypointData = serde_json::from_str(json_str).unwrap();
+        let actual: WaypointData = serde_json::from_str(json_str).unwrap();
 
         let expected = some_asteroid();
-
-        let actual = Waypoint { data };
 
         assert_eq!(expected, actual);
     }
@@ -754,11 +738,9 @@ pub mod tests {
           }
         }"#;
 
-        let data: WaypointData = serde_json::from_str(json_str).unwrap();
+        let actual: WaypointData = serde_json::from_str(json_str).unwrap();
 
         let expected = some_moon();
-
-        let actual = Waypoint { data };
 
         assert_eq!(expected, actual);
     }
