@@ -1,14 +1,14 @@
 use std::sync::Arc;
 
 use serde_derive::{Deserialize, Serialize};
-use serde_json::Value;
 
 use crate::{
     faction::Factions,
     space_traders_client::{Error, SpaceTradersClient},
-    system::waypoint::shipyard::Shipyard,
+    system::waypoint::{market::MarketResponse, shipyard::ShipyardResponse},
 };
 
+pub mod market;
 pub mod shipyard;
 
 #[derive(Debug, PartialEq, Deserialize)]
@@ -178,14 +178,29 @@ impl Waypoint {
         }
     }
 
-    pub async fn get_shipyard(&self) -> Result<Shipyard, Error> {
+    // curl https://api.spacetraders.io/v2/systems/X1-MH3/waypoints/X1-MH3-A2/market
+
+    pub async fn get_shipyard(&self) -> Result<ShipyardResponse, Error> {
         self.client
-            .get::<Value, Shipyard>(
+            .get(
                 &format!(
                     "systems/{}/waypoints/{}/shipyard",
                     self.data.system_symbol, self.data.symbol
                 ),
-                None,
+                None::<&()>,
+                reqwest::StatusCode::OK,
+            )
+            .await
+    }
+
+    pub async fn get_market(&self) -> Result<MarketResponse, Error> {
+        self.client
+            .get(
+                &format!(
+                    "systems/{}/waypoints/{}/market",
+                    self.data.system_symbol, self.data.symbol
+                ),
+                None::<&()>,
                 reqwest::StatusCode::OK,
             )
             .await
@@ -201,7 +216,9 @@ pub mod tests {
     use crate::{
         faction::Factions,
         string,
-        system::waypoint::{shipyard::tests::some_shipyard, *},
+        system::waypoint::{
+            market::tests::some_market_response, shipyard::tests::some_shipyard, *,
+        },
     };
 
     fn some_chart() -> Chart {
@@ -471,6 +488,27 @@ pub mod tests {
         let actual = waypoint.get_shipyard().await.unwrap();
 
         let expected = some_shipyard();
+
+        assert_eq!(expected, actual)
+    }
+
+    #[tokio::test]
+    async fn get_market_request_should_be_sent_parsed_and_returned_for_waypoint_that_has_market() {
+        let mock_server = mock_response::<serde_json::Value>(
+            RequestMethod::Get,
+            "systems/X1-MH3/waypoints/X1-MH3-A2/market",
+            200,
+            None,
+            None,
+        )
+        .await;
+
+        let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
+
+        let waypoint = Waypoint::new(client.clone(), some_moon());
+        let actual = waypoint.get_market().await.unwrap();
+
+        let expected = some_market_response();
 
         assert_eq!(expected, actual)
     }

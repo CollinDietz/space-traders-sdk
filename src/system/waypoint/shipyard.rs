@@ -1,14 +1,17 @@
 use serde_derive::Deserialize;
 
-use crate::ship::{Crew, Engine, Frame, Module, Mount, Reactor};
+use crate::{
+    ship::{Crew, Engine, Frame, Module, Mount, Reactor},
+    system::waypoint::market::{ActivityLevel, SupplyLevel},
+};
 
 #[derive(Debug, PartialEq, Deserialize)]
-pub struct Shipyard {
-    data: ShipyardData,
+pub struct ShipyardResponse {
+    data: Shipyard,
 }
 
 #[derive(Debug, PartialEq, Deserialize)]
-pub struct ShipyardData {
+pub struct Shipyard {
     pub symbol: String,
     #[serde(rename = "shipTypes")]
     pub ship_types: Vec<ShipTypeWrapper>,
@@ -23,8 +26,8 @@ pub struct ShipyardShip {
     pub r#type: ShipType,
     pub name: String,
     pub description: String,
-    pub supply: String,   // really an enum
-    pub activity: String, //really an enum
+    pub supply: SupplyLevel,
+    pub activity: ActivityLevel,
     pub purchase_price: i32,
     pub frame: Frame,
     pub reactor: Reactor,
@@ -84,12 +87,12 @@ pub struct ShipyardTransaction {
 pub mod tests {
     use crate::{
         string,
-        system::waypoint::shipyard::{ShipType, ShipTypeWrapper, Shipyard, ShipyardData},
+        system::waypoint::shipyard::{ShipType, ShipTypeWrapper, Shipyard, ShipyardResponse},
     };
 
-    pub fn some_shipyard() -> Shipyard {
-        Shipyard {
-            data: ShipyardData {
+    pub fn some_shipyard() -> ShipyardResponse {
+        ShipyardResponse {
+            data: Shipyard {
                 symbol: string!("X1-MH3-A2"),
                 ship_types: vec![
                     ShipTypeWrapper {
@@ -130,7 +133,7 @@ pub mod tests {
           }
         }"#;
 
-        let actual: Shipyard = serde_json::from_str(json_str).unwrap();
+        let actual: ShipyardResponse = serde_json::from_str(json_str).unwrap();
         let expected = some_shipyard();
 
         assert_eq!(expected, actual);
