@@ -35,7 +35,6 @@ impl System {
         }
     }
 
-    // Should be able to search for a certain trait
     pub async fn list_waypoints(
         &self,
         waypoint_type: Option<WaypointType>,

@@ -24,7 +24,7 @@ pub struct AgentData {
 #[derive(Debug, PartialEq)]
 pub struct Agent {
     client: Arc<SpaceTradersClient>,
-    data: AgentData,
+    pub data: AgentData,
     contracts: HashMap<String, Contract>,
 }
 
