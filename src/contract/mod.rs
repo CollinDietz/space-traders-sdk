@@ -71,7 +71,7 @@ pub struct ContractAcceptResponse {
 #[derive(Debug, PartialEq)]
 pub struct Contract {
     client: Arc<SpaceTradersClient>,
-    data: ContractData,
+    pub data: ContractData,
 }
 
 impl Contract {
