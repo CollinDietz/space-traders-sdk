@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use reqwest::StatusCode;
-use serde_derive::Deserialize;
+use serde_derive::{Deserialize, Serialize};
 
 use crate::{
     agent::AgentData,
@@ -9,7 +9,7 @@ use crate::{
     space_traders_client::{Error, SpaceTradersClient},
 };
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ContractData {
     pub id: String,
@@ -25,7 +25,7 @@ pub struct ContractData {
     pub deadline_to_accept: Option<String>, // date time?
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum ContractType {
     Procurement,
@@ -33,7 +33,7 @@ pub enum ContractType {
     Shuttle,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Terms {
     pub deadline: String, // date time?
@@ -41,14 +41,14 @@ pub struct Terms {
     pub deliver: Option<Vec<Deliver>>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Payment {
     pub on_accepted: i32,
     pub on_fulfilled: i32,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Deliver {
     pub trade_symbol: String,

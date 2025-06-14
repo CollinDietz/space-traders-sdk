@@ -64,7 +64,7 @@ pub struct Chart {
     pub submitted_on: Option<String>,
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum WaypointType {
     Planet,
@@ -83,7 +83,7 @@ pub enum WaypointType {
     FuelStation,
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum WaypointTraitSymbol {
     Uncharted,
@@ -169,7 +169,7 @@ pub enum WaypointModifierSymbol {
 
 #[derive(Debug, PartialEq)]
 pub struct Waypoint {
-    data: WaypointData,
+    pub data: WaypointData,
     client: Arc<SpaceTradersClient>,
 }
 
@@ -180,8 +180,6 @@ impl Waypoint {
             data,
         }
     }
-
-    // curl https://api.spacetraders.io/v2/systems/X1-MH3/waypoints/X1-MH3-A2/market
 
     pub async fn get_shipyard(&self) -> Result<Shipyard, Error> {
         let response: ShipyardResponse = self
