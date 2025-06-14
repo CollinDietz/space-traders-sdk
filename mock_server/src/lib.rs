@@ -1,12 +1,13 @@
-use mockito::ServerGuard;
+use mockito::{Matcher, Server, ServerGuard};
 use serde::Serialize;
 
+#[derive(Debug)]
 pub enum RequestMethod {
     Get,
     Post,
 }
 
-impl std::string::ToString for RequestMethod {
+impl ToString for RequestMethod {
     fn to_string(&self) -> String {
         match self {
             RequestMethod::Get => "GET".to_string(),
@@ -41,47 +42,75 @@ fn build_file_path_for_response<T: Serialize>(
     }
 }
 
-pub async fn mock_response<T: Serialize>(
-    method: RequestMethod,
-    endpoint: &str,
-    status: usize,
-    bearer_token: Option<String>,
-    body_or_query: Option<&T>,
-) -> ServerGuard {
-    let mut s = mockito::Server::new_async().await;
+pub struct MockServerBuilder {
+    server: ServerGuard,
+}
 
-    let body_response = build_file_path_for_response(&method, endpoint, status, &body_or_query);
-
-    let mut mock = s
-        .mock(
-            method.to_string().as_str(),
-            format!("/{}", endpoint).as_str(),
-        )
-        .with_header("Content-Type", "application/json")
-        .with_status(status)
-        .with_body_from_file(body_response.as_str());
-
-    if let Some(bearer_token) = bearer_token {
-        mock = mock.match_header("Authorization", format!("Bearer {}", bearer_token).as_str());
+impl MockServerBuilder {
+    pub async fn new() -> Self {
+        let server = Server::new_async().await;
+        Self { server }
     }
 
-    match method {
-        RequestMethod::Get => {
-            if let Some(query) = body_or_query {
-                let query_string = serde_urlencoded::to_string(query)
-                    .expect("Failed to serialize query parameters");
-                mock = mock.match_query(query_string.as_str());
-            };
+    pub async fn mock_response<T: Serialize>(
+        mut self,
+        method: RequestMethod,
+        endpoint: &str,
+        status: usize,
+        bearer_token: Option<String>,
+        body_or_query: Option<&T>,
+    ) -> Self {
+        let body_response = build_file_path_for_response(&method, endpoint, status, &body_or_query);
+
+        let mut mock = self
+            .server
+            .mock(
+                method.to_string().as_str(),
+                format!("/{}", endpoint).as_str(),
+            )
+            .with_header("Content-Type", "application/json")
+            .with_status(status)
+            .with_body_from_file(&body_response);
+
+        if let Some(bearer_token) = bearer_token {
+            mock = mock.match_header("Authorization", format!("Bearer {}", bearer_token).as_str());
         }
-        RequestMethod::Post => {
-            if let Some(body) = body_or_query {
-                let json = serde_json::to_value(body).expect("Failed to serialize expected body");
-                mock = mock.match_body(mockito::Matcher::Json(json));
-            };
+
+        match method {
+            RequestMethod::Get => {
+                if let Some(query) = body_or_query {
+                    let query_string = serde_urlencoded::to_string(query)
+                        .expect("Failed to serialize query parameters");
+                    mock = mock.match_query(query_string.as_str());
+                }
+            }
+            RequestMethod::Post => {
+                if let Some(body) = body_or_query {
+                    let json = serde_json::to_value(body).expect("Failed to serialize body");
+                    mock = mock.match_body(Matcher::Json(json));
+                }
+            }
         }
+
+        mock.create_async().await;
+        self
     }
 
-    mock.create_async().await;
+    pub fn build(self) -> ServerGuard {
+        self.server
+    }
 
-    s
+    pub async fn mock_once<T: Serialize>(
+        method: RequestMethod,
+        endpoint: &str,
+        status: usize,
+        bearer_token: Option<String>,
+        body_or_query: Option<&T>,
+    ) -> ServerGuard {
+        Self::new()
+            .await
+            .mock_response(method, endpoint, status, bearer_token, body_or_query)
+            .await
+            .build()
+    }
 }

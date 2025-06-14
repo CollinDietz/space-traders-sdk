@@ -98,7 +98,7 @@ pub mod tests {
             faction: Factions::Aegis,
         };
 
-        let mock_server = mock_response(
+        let mock_server = MockServerBuilder::mock_once(
             RequestMethod::Post,
             "register",
             201,

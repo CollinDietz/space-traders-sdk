@@ -175,7 +175,7 @@ pub mod tests {
     pub mod contract {
         use std::sync::Arc;
 
-        use mock_server::{mock_response, RequestMethod};
+        use mock_server::{MockServerBuilder, RequestMethod};
 
         use crate::{
             contract::{
@@ -203,7 +203,7 @@ pub mod tests {
         async fn when_made_with_contract_data_should_be_acceptable() {
             let data = some_contract_data();
 
-            let mock_server = mock_response::<serde_json::Value>(
+            let mock_server = MockServerBuilder::mock_once::<serde_json::Value>(
                 RequestMethod::Post,
                 &format!("my/contracts/{}/accept", &data.id),
                 200,

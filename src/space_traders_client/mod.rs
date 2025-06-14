@@ -258,7 +258,7 @@ impl SpaceTradersClient {
 
 #[cfg(test)]
 pub mod tests {
-    use mock_server::{mock_response, RequestMethod};
+    use mock_server::{MockServerBuilder, RequestMethod};
 
     use crate::{
         space_traders_client::{Error, ErrorCode, ErrorData, SpaceTradersClient},
@@ -268,9 +268,14 @@ pub mod tests {
     #[tokio::test]
     async fn should_return_sdk_specific_error_if_request_responds_but_is_not_expected_status_code()
     {
-        let mock_server =
-            mock_response::<serde_json::Value>(RequestMethod::Post, "register", 401, None, None)
-                .await;
+        let mock_server = MockServerBuilder::mock_once::<serde_json::Value>(
+            RequestMethod::Post,
+            "register",
+            401,
+            None,
+            None,
+        )
+        .await;
 
         let client = SpaceTradersClient::with_url(&mock_server.url(), None);
 

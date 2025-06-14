@@ -66,7 +66,7 @@ impl System {
 pub mod tests {
     use std::sync::Arc;
 
-    use mock_server::{mock_response, RequestMethod};
+    use mock_server::{MockServerBuilder, RequestMethod};
 
     use crate::{
         space_traders_client::SpaceTradersClient,
@@ -84,7 +84,7 @@ pub mod tests {
 
     #[tokio::test]
     async fn list_way_points_request_should_be_sent_parsed_and_returned() {
-        let mock_server = mock_response::<serde_json::Value>(
+        let mock_server = MockServerBuilder::mock_once::<serde_json::Value>(
             RequestMethod::Get,
             "systems/X1-MH3/waypoints",
             200,
@@ -112,7 +112,7 @@ pub mod tests {
 
     #[tokio::test]
     async fn list_way_points_with_planet_type_request_should_be_sent_parsed_and_returned() {
-        let mock_server = mock_response(
+        let mock_server = MockServerBuilder::mock_once(
             RequestMethod::Get,
             "systems/X1-MH3/waypoints",
             200,
@@ -137,7 +137,7 @@ pub mod tests {
 
     #[tokio::test]
     async fn list_way_points_with_trait_shipyard_request_should_be_sent_parsed_and_returned() {
-        let mock_server = mock_response(
+        let mock_server = MockServerBuilder::mock_once(
             RequestMethod::Get,
             "systems/X1-MH3/waypoints",
             200,

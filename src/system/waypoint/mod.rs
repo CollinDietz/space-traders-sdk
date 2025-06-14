@@ -220,7 +220,7 @@ impl Waypoint {
 pub mod tests {
     use std::vec;
 
-    use mock_server::{mock_response, RequestMethod};
+    use mock_server::{MockServerBuilder, RequestMethod};
 
     use crate::{
         faction::Factions,
@@ -480,7 +480,7 @@ pub mod tests {
     #[tokio::test]
     async fn get_shipyard_request_should_be_sent_parsed_and_returned_for_waypoint_that_has_shipyard(
     ) {
-        let mock_server = mock_response::<serde_json::Value>(
+        let mock_server = MockServerBuilder::mock_once::<serde_json::Value>(
             RequestMethod::Get,
             "systems/X1-MH3/waypoints/X1-MH3-A2/shipyard",
             200,
@@ -501,7 +501,7 @@ pub mod tests {
 
     #[tokio::test]
     async fn get_market_request_should_be_sent_parsed_and_returned_for_waypoint_that_has_market() {
-        let mock_server = mock_response::<serde_json::Value>(
+        let mock_server = MockServerBuilder::mock_once::<serde_json::Value>(
             RequestMethod::Get,
             "systems/X1-MH3/waypoints/X1-MH3-A2/market",
             200,
