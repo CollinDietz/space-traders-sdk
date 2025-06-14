@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{fmt, sync::Arc};
 
 use derivative::Derivative;
 use reqwest::{RequestBuilder, StatusCode};
@@ -8,7 +8,7 @@ use serde_repr::Deserialize_repr;
 
 const REAL_SERVER: &'static str = "https://api.spacetraders.io/v2";
 
-#[derive(Debug, Deserialize_repr, PartialEq)]
+#[derive(Debug, Clone, Deserialize_repr, PartialEq)]
 #[repr(u16)]
 pub enum ErrorCode {
     ResponseSerializationError = 3000,
@@ -128,6 +128,12 @@ pub struct ErrorData {
 #[derive(Debug, PartialEq, Deserialize)]
 pub struct Error {
     pub error: ErrorData,
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Error {:?}: {}", self.error.code, &self.error.message)
+    }
 }
 
 #[derive(Debug, Derivative, Clone)]
