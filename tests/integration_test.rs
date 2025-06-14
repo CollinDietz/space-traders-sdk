@@ -22,7 +22,7 @@ async fn can_register_agent_and_accept_contract() {
         faction: Factions::Aegis,
     };
     let mut agent = account.register_agent(registration_request).await.unwrap();
-    let contract_id = agent.list_contracts().next().cloned().unwrap();
+    let contract_id = agent.contracts().next().unwrap().0.clone();
     let contract = agent.edit_contract(&contract_id);
     contract.accept().await.unwrap();
     assert!(contract.is_accepted());
