@@ -77,6 +77,10 @@ impl Agent {
         }
     }
 
+    pub fn get_token(&self) -> Option<&str> {
+        self.client.get_token()
+    }
+
     pub fn list_contracts(&self) -> Keys<'_, String, Contract> {
         self.contracts.keys().clone()
     }

@@ -163,6 +163,10 @@ impl SpaceTradersClient {
         }
     }
 
+    pub fn get_token(&self) -> Option<&str> {
+        self.token.as_deref()
+    }
+
     async fn send_and_handle_request_response<R: DeserializeOwned>(
         request: RequestBuilder,
         success_status: StatusCode,
