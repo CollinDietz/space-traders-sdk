@@ -1,0 +1,46 @@
+{
+  "data": {
+    "symbol": "X1-AG18",
+    "sectorSymbol": "X1",
+    "type": "ORANGE_STAR",
+    "x": 20324,
+    "y": 7157,
+    "waypoints": [
+      {
+        "symbol": "X1-AG18-A1",
+        "type": "PLANET",
+        "x": -10,
+        "y": -24,
+        "orbitals": [
+          {
+            "symbol": "X1-AG18-A2"
+          },
+          {
+            "symbol": "X1-AG18-A3"
+          },
+          {
+            "symbol": "X1-AG18-A4"
+          }
+        ]
+      },
+      {
+        "symbol": "X1-AG18-XX5D",
+        "type": "ENGINEERED_ASTEROID",
+        "x": 29,
+        "y": -1,
+        "orbitals": []
+      },
+      {
+        "symbol": "X1-AG18-A2",
+        "type": "MOON",
+        "x": -10,
+        "y": -24,
+        "orbitals": [],
+        "orbits": "X1-AG18-A1"
+      }
+    ],
+    "factions": [],
+    "constellation": "Lacerta",
+    "name": "Borealis"
+  }
+}

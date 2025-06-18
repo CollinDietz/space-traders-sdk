@@ -32,7 +32,7 @@ pub struct WaypointData {
     pub is_under_construction: bool,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct WaypointOrbital {
     pub symbol: String,
 }
