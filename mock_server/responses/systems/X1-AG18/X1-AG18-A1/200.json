@@ -1,0 +1,62 @@
+{
+    "data": {
+        "symbol": "X1-AG18-A1",
+        "type": "PLANET",
+        "systemSymbol": "X1-AG18",
+        "x": -10,
+        "y": -24,
+        "orbitals": [
+            {
+                "symbol": "X1-AG18-A2"
+            },
+            {
+                "symbol": "X1-AG18-A3"
+            },
+            {
+                "symbol": "X1-AG18-A4"
+            }
+        ],
+        "traits": [
+            {
+                "symbol": "JUNGLE",
+                "name": "Jungle",
+                "description": "A lush, tropical world with dense vegetation and a thriving ecosystem, offering a wealth of resources and unique opportunities for research and exploration."
+            },
+            {
+                "symbol": "SCATTERED_SETTLEMENTS",
+                "name": "Scattered Settlements",
+                "description": "A collection of dispersed communities, each independent yet connected through trade and communication networks."
+            },
+            {
+                "symbol": "STRONG_GRAVITY",
+                "name": "Strong Gravity",
+                "description": "A waypoint with a powerful gravitational force, requiring specialized technology and infrastructure to support habitation and resource extraction."
+            },
+            {
+                "symbol": "ICE_CRYSTALS",
+                "name": "Ice Crystals",
+                "description": "Expansive fields of ice, providing a vital source of water and other resources such as ammonia ice, liquid hydrogen, and liquid nitrogen for local populations and industries."
+            },
+            {
+                "symbol": "PERPETUAL_DAYLIGHT",
+                "name": "Perpetual Daylight",
+                "description": "A waypoint that never experiences darkness, providing abundant solar energy and unique living conditions for its inhabitants."
+            },
+            {
+                "symbol": "MARKETPLACE",
+                "name": "Marketplace",
+                "description": "A thriving center of commerce where traders from across the galaxy gather to buy, sell, and exchange goods."
+            }
+        ],
+        "isUnderConstruction": false,
+        "faction": {
+            "symbol": "COSMIC"
+        },
+        "modifiers": [],
+        "chart": {
+            "waypointSymbol": "X1-AG18-A1",
+            "submittedBy": "COSMIC",
+            "submittedOn": "2025-06-15T13:01:51.388Z"
+        }
+    }
+}

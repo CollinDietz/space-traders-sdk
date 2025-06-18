@@ -1,0 +1,58 @@
+{
+    "data": {
+        "symbol": "X1-AG18-A2",
+        "type": "MOON",
+        "systemSymbol": "X1-AG18",
+        "x": -10,
+        "y": -24,
+        "orbitals": [],
+        "traits": [
+            {
+                "symbol": "FROZEN",
+                "name": "Frozen",
+                "description": "An ice-covered world with frigid temperatures, providing unique research opportunities and resources such as ice water, ammonia ice, and other frozen compounds."
+            },
+            {
+                "symbol": "OUTPOST",
+                "name": "Outpost",
+                "description": "A small, remote settlement providing essential services and a safe haven for travelers passing through."
+            },
+            {
+                "symbol": "VIBRANT_AURORAS",
+                "name": "Vibrant Auroras",
+                "description": "A celestial light show caused by the interaction of charged particles with the waypoint's atmosphere, creating a mesmerizing spectacle and attracting tourists from across the galaxy."
+            },
+            {
+                "symbol": "EXTREME_TEMPERATURES",
+                "name": "Extreme Temperatures",
+                "description": "A waypoint with scorching heat or freezing cold, requiring specialized equipment and technology to survive and thrive in these harsh environments."
+            },
+            {
+                "symbol": "CORROSIVE_ATMOSPHERE",
+                "name": "Corrosive Atmosphere",
+                "description": "A hostile environment with an atmosphere that can rapidly degrade materials and equipment, requiring advanced engineering solutions to ensure the safety and longevity of structures and vehicles."
+            },
+            {
+                "symbol": "MARKETPLACE",
+                "name": "Marketplace",
+                "description": "A thriving center of commerce where traders from across the galaxy gather to buy, sell, and exchange goods."
+            },
+            {
+                "symbol": "SHIPYARD",
+                "name": "Shipyard",
+                "description": "A bustling hub for the construction, repair, and sale of various spacecraft, from humble shuttles to mighty warships."
+            }
+        ],
+        "isUnderConstruction": false,
+        "orbits": "X1-AG18-A1",
+        "faction": {
+            "symbol": "COSMIC"
+        },
+        "modifiers": [],
+        "chart": {
+            "waypointSymbol": "X1-AG18-A2",
+            "submittedBy": "COSMIC",
+            "submittedOn": "2025-06-15T13:01:51.419Z"
+        }
+    }
+}

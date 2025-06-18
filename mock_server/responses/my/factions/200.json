@@ -1,0 +1,13 @@
+{
+    "data": [
+        {
+            "symbol": "COSMIC",
+            "reputation": 100
+        }
+    ],
+    "meta": {
+        "total": 1,
+        "page": 1,
+        "limit": 10
+    }
+}

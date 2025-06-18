@@ -1,0 +1,14 @@
+{
+    "data": {
+        "symbol": "X1-AG18-I50",
+        "connections": [
+            "X1-UN25-E24D",
+            "X1-RP30-B23B",
+            "X1-FN57-X17C",
+            "X1-DF43-I50",
+            "X1-HP67-F16E",
+            "X1-QJ2-I58",
+            "X1-DV69-I62"
+        ]
+    }
+}
