@@ -17,6 +17,11 @@ pub struct SystemResponse {
     pub data: SystemData,
 }
 
+#[derive(Debug, PartialEq, Deserialize)]
+pub struct ListSystemResponse {
+    pub data: Vec<SystemData>,
+}
+
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SystemData {
@@ -80,6 +85,13 @@ struct ListWayPointsParams {
     pub r#trait: Option<WaypointTraitSymbol>,
 }
 
+#[derive(Serialize)]
+struct ListSystemParams {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub page: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit: Option<u8>,
+}
 impl System {
     pub fn new(client: Arc<SpaceTradersClient>, symbol: &str) -> Self {
         System {
@@ -138,6 +150,19 @@ impl System {
                 None::<&()>,
                 reqwest::StatusCode::OK,
             )
+            .await?;
+
+        Ok(response.data)
+    }
+
+    pub async fn list_systems(
+        client: &SpaceTradersClient,
+        page: Option<u8>,
+        limit: Option<u8>,
+    ) -> Result<Vec<SystemData>, Error> {
+        let params = ListSystemParams { page, limit };
+        let response: ListSystemResponse = client
+            .get("systems", Some(&params), reqwest::StatusCode::OK)
             .await?;
 
         Ok(response.data)
@@ -220,6 +245,80 @@ pub mod tests {
         }
     }
 
+    fn some_neutron_star() -> SystemData {
+        SystemData {
+            symbol: string!("X1-HX62"),
+            sector_symbol: string!("X1"),
+            constellation: Some(string!("Zhang")),
+            name: Some(string!("Kappa")),
+            r#type: SystemType::NeutronStar,
+            x: 1185,
+            y: 234,
+            waypoints: vec![],
+            factions: vec![],
+        }
+    }
+
+    fn some_blue_star() -> SystemData {
+        SystemData {
+            symbol: string!("X1-NC38"),
+            sector_symbol: string!("X1"),
+            constellation: Some(string!("Zhang")),
+            name: Some(string!("Psi")),
+            r#type: SystemType::BlueStar,
+            x: 1115,
+            y: 496,
+            waypoints: vec![
+                SystemWaypoint {
+                    symbol: string!("X1-NC38-FC1B"),
+                    r#type: WaypointType::Planet,
+                    x: -10,
+                    y: -7,
+                    orbitals: vec![],
+                    orbits: None,
+                },
+                SystemWaypoint {
+                    symbol: string!("X1-NC38-AD2C"),
+                    r#type: WaypointType::GasGiant,
+                    x: 15,
+                    y: 23,
+                    orbitals: vec![
+                        WaypointOrbital {
+                            symbol: string!("X1-NC38-CF3D"),
+                        },
+                        WaypointOrbital {
+                            symbol: string!("X1-NC38-BB4X"),
+                        },
+                    ],
+                    orbits: None,
+                },
+            ],
+            factions: vec![],
+        }
+    }
+
+    #[tokio::test]
+    async fn should_list_system_data_with_just_a_client() {
+        let mock_server = MockServerBuilder::mock_once(
+            RequestMethod::Get,
+            "systems",
+            200,
+            None,
+            Some(&[("page", 1), ("limit", 2)]),
+        )
+        .await;
+
+        let client = SpaceTradersClient::with_url(&mock_server.url(), None);
+
+        let actual = System::list_systems(&client, Some(1), Some(2))
+            .await
+            .unwrap();
+
+        let expected = vec![some_neutron_star(), some_blue_star()];
+
+        assert_eq!(expected, actual);
+    }
+
     #[tokio::test]
     async fn should_get_system_data_with_just_a_client() {
         let mock_server = MockServerBuilder::mock_once(
@@ -231,7 +330,7 @@ pub mod tests {
         )
         .await;
 
-        let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
+        let client = SpaceTradersClient::with_url(&mock_server.url(), None);
 
         let actual = System::get_system_data(&client, "X1-AG18").await.unwrap();
 

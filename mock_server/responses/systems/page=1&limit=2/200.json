@@ -1,0 +1,53 @@
+{
+    "data": [
+        {
+            "symbol": "X1-HX62",
+            "sectorSymbol": "X1",
+            "type": "NEUTRON_STAR",
+            "x": 1185,
+            "y": 234,
+            "waypoints": [],
+            "factions": [],
+            "constellation": "Zhang",
+            "name": "Kappa"
+        },
+        {
+            "symbol": "X1-NC38",
+            "sectorSymbol": "X1",
+            "type": "BLUE_STAR",
+            "x": 1115,
+            "y": 496,
+            "waypoints": [
+                {
+                    "symbol": "X1-NC38-FC1B",
+                    "type": "PLANET",
+                    "x": -10,
+                    "y": -7,
+                    "orbitals": []
+                },
+                {
+                    "symbol": "X1-NC38-AD2C",
+                    "type": "GAS_GIANT",
+                    "x": 15,
+                    "y": 23,
+                    "orbitals": [
+                        {
+                            "symbol": "X1-NC38-CF3D"
+                        },
+                        {
+                            "symbol": "X1-NC38-BB4X"
+                        }
+                    ]
+                }
+            ],
+            "factions": [],
+            "constellation": "Zhang",
+            "name": "Psi"
+        }
+    ],
+    "meta": {
+        "total": 7019,
+        "page": 1,
+        "limit": 3
+    }
+}
