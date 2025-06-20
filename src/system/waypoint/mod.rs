@@ -173,6 +173,72 @@ pub struct Waypoint {
     client: Arc<SpaceTradersClient>,
 }
 
+#[derive(Debug, Deserialize)]
+struct WaypointResponse {
+    data: WaypointData,
+}
+
+impl Waypoint {
+    pub async fn get_waypoint_data(
+        client: &SpaceTradersClient,
+        system_symbol: &str,
+        symbol: &str,
+    ) -> Result<WaypointData, Error> {
+        let response: WaypointResponse = client
+            .get(
+                &format!("systems/{}/waypoints/{}", system_symbol, symbol),
+                None::<&()>,
+                reqwest::StatusCode::OK,
+            )
+            .await?;
+
+        Ok(response.data)
+    }
+
+    pub async fn get_waypoint(
+        client: Arc<SpaceTradersClient>,
+        system_symbol: &str,
+        symbol: &str,
+    ) -> Result<Self, Error> {
+        Ok(Waypoint {
+            data: Waypoint::get_waypoint_data(&client, system_symbol, symbol).await?,
+            client: client,
+        })
+    }
+
+    pub async fn get_waypoint_shipyard(
+        client: &SpaceTradersClient,
+        system_symbol: &str,
+        symbol: &str,
+    ) -> Result<Shipyard, Error> {
+        let response: ShipyardResponse = client
+            .get(
+                &format!("systems/{}/waypoints/{}/shipyard", system_symbol, symbol),
+                None::<&()>,
+                reqwest::StatusCode::OK,
+            )
+            .await?;
+
+        Ok(response.data)
+    }
+
+    pub async fn get_waypoint_market(
+        client: &SpaceTradersClient,
+        system_symbol: &str,
+        symbol: &str,
+    ) -> Result<Market, Error> {
+        let response: MarketResponse = client
+            .get(
+                &format!("systems/{}/waypoints/{}/market", system_symbol, symbol),
+                None::<&()>,
+                reqwest::StatusCode::OK,
+            )
+            .await?;
+
+        Ok(response.data)
+    }
+}
+
 impl Waypoint {
     pub fn new(client: Arc<SpaceTradersClient>, data: WaypointData) -> Self {
         Waypoint {
@@ -182,35 +248,13 @@ impl Waypoint {
     }
 
     pub async fn get_shipyard(&self) -> Result<Shipyard, Error> {
-        let response: ShipyardResponse = self
-            .client
-            .get(
-                &format!(
-                    "systems/{}/waypoints/{}/shipyard",
-                    self.data.system_symbol, self.data.symbol
-                ),
-                None::<&()>,
-                reqwest::StatusCode::OK,
-            )
-            .await?;
-
-        Ok(response.data)
+        Waypoint::get_waypoint_shipyard(&self.client, &self.data.system_symbol, &self.data.symbol)
+            .await
     }
 
     pub async fn get_market(&self) -> Result<Market, Error> {
-        let response: MarketResponse = self
-            .client
-            .get(
-                &format!(
-                    "systems/{}/waypoints/{}/market",
-                    self.data.system_symbol, self.data.symbol
-                ),
-                None::<&()>,
-                reqwest::StatusCode::OK,
-            )
-            .await?;
-
-        Ok(response.data)
+        Waypoint::get_waypoint_market(&self.client, &self.data.system_symbol, &self.data.symbol)
+            .await
     }
 }
 
@@ -476,8 +520,73 @@ pub mod tests {
     }
 
     #[tokio::test]
-    async fn get_shipyard_request_should_be_sent_parsed_and_returned_for_waypoint_that_has_shipyard(
-    ) {
+    async fn should_get_waypoint_data() {
+        let mock_server = MockServerBuilder::mock_once::<serde_json::Value>(
+            RequestMethod::Get,
+            "systems/X1-MH3/waypoints/X1-MH3-A2",
+            200,
+            None,
+            None,
+        )
+        .await;
+
+        let client = SpaceTradersClient::with_url(&mock_server.url(), None);
+
+        let actual = Waypoint::get_waypoint_data(&client, "X1-MH3", "X1-MH3-A2")
+            .await
+            .unwrap();
+
+        let expected = some_moon();
+
+        assert_eq!(expected, actual)
+    }
+
+    #[tokio::test]
+    async fn should_get_waypoint() {
+        let mock_server = MockServerBuilder::mock_once::<serde_json::Value>(
+            RequestMethod::Get,
+            "systems/X1-MH3/waypoints/X1-MH3-A2",
+            200,
+            None,
+            None,
+        )
+        .await;
+
+        let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
+
+        let actual = Waypoint::get_waypoint(client.clone(), "X1-MH3", "X1-MH3-A2")
+            .await
+            .unwrap();
+
+        let expected = Waypoint::new(client.clone(), some_moon());
+
+        assert_eq!(expected, actual)
+    }
+
+    #[tokio::test]
+    async fn should_get_shipyard() {
+        let mock_server = MockServerBuilder::mock_once::<serde_json::Value>(
+            RequestMethod::Get,
+            "systems/X1-MH3/waypoints/X1-MH3-A2/shipyard",
+            200,
+            None,
+            None,
+        )
+        .await;
+
+        let client = SpaceTradersClient::with_url(&mock_server.url(), None);
+
+        let actual = Waypoint::get_waypoint_shipyard(&client, "X1-MH3", "X1-MH3-A2")
+            .await
+            .unwrap();
+
+        let expected = some_shipyard();
+
+        assert_eq!(expected, actual)
+    }
+
+    #[tokio::test]
+    async fn should_get_shipyard_with_object() {
         let mock_server = MockServerBuilder::mock_once::<serde_json::Value>(
             RequestMethod::Get,
             "systems/X1-MH3/waypoints/X1-MH3-A2/shipyard",
@@ -498,7 +607,29 @@ pub mod tests {
     }
 
     #[tokio::test]
-    async fn get_market_request_should_be_sent_parsed_and_returned_for_waypoint_that_has_market() {
+    async fn should_get_market() {
+        let mock_server = MockServerBuilder::mock_once::<serde_json::Value>(
+            RequestMethod::Get,
+            "systems/X1-MH3/waypoints/X1-MH3-A2/market",
+            200,
+            None,
+            None,
+        )
+        .await;
+
+        let client = SpaceTradersClient::with_url(&mock_server.url(), None);
+
+        let actual = Waypoint::get_waypoint_market(&client, "X1-MH3", "X1-MH3-A2")
+            .await
+            .unwrap();
+
+        let expected = some_market();
+
+        assert_eq!(expected, actual)
+    }
+
+    #[tokio::test]
+    async fn should_get_market_with_object() {
         let mock_server = MockServerBuilder::mock_once::<serde_json::Value>(
             RequestMethod::Get,
             "systems/X1-MH3/waypoints/X1-MH3-A2/market",

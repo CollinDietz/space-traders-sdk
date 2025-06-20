@@ -56,6 +56,7 @@ pub struct SystemFaction {
     symbol: Factions,
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct System {
     symbol: String,
     data: Option<SystemData>,
@@ -94,51 +95,21 @@ struct ListSystemParams {
 }
 
 impl System {
-    pub fn new(client: Arc<SpaceTradersClient>, symbol: &str) -> Self {
-        System {
-            client: client,
-            data: None,
-            symbol: symbol.into(),
-        }
-    }
-
-    pub async fn list_waypoints(
-        &self,
-        waypoint_type: Option<WaypointType>,
-        waypoint_trait: Option<WaypointTraitSymbol>,
-    ) -> Result<Vec<Waypoint>, Error> {
-        let query_params = ListWayPointsParams {
-            r#type: waypoint_type,
-            r#trait: waypoint_trait,
-        };
-
-        let response: WaypointResponse = self
-            .client
-            .get(
-                &format!("systems/{}/waypoints", self.symbol),
-                Some(&query_params),
-                reqwest::StatusCode::OK,
-            )
+    pub async fn list_systems(
+        client: &Arc<SpaceTradersClient>,
+        page: Option<u8>,
+        limit: Option<u8>,
+    ) -> Result<Vec<System>, Error> {
+        let params = ListSystemParams { page, limit };
+        let response: ListSystemResponse = client
+            .get("systems", Some(&params), reqwest::StatusCode::OK)
             .await?;
 
         Ok(response
             .data
             .into_iter()
-            .map(|data| Waypoint::new(self.client.clone(), data))
+            .map(|data| System::with_data(client.clone(), data))
             .collect())
-    }
-
-    pub async fn get_data(&mut self) -> Result<SystemData, Error> {
-        let data = match &self.data {
-            Some(cached) => cached.clone(),
-            None => {
-                let fetched = System::get_system_data(&self.client, &self.symbol).await?;
-                self.data = Some(fetched.clone());
-                fetched
-            }
-        };
-
-        Ok(data)
     }
 
     pub async fn get_system_data(
@@ -156,17 +127,78 @@ impl System {
         Ok(response.data)
     }
 
-    pub async fn list_systems(
-        client: &SpaceTradersClient,
-        page: Option<u8>,
-        limit: Option<u8>,
-    ) -> Result<Vec<SystemData>, Error> {
-        let params = ListSystemParams { page, limit };
-        let response: ListSystemResponse = client
-            .get("systems", Some(&params), reqwest::StatusCode::OK)
+    pub async fn get_system(
+        client: Arc<SpaceTradersClient>,
+        symbol: &str,
+    ) -> Result<System, Error> {
+        let data = System::get_system_data(&client, symbol).await?;
+        Ok(System::with_data(client, data))
+    }
+
+    pub async fn list_system_waypoints(
+        client: &Arc<SpaceTradersClient>,
+        symbol: &str,
+        waypoint_type: Option<WaypointType>,
+        waypoint_trait: Option<WaypointTraitSymbol>,
+    ) -> Result<Vec<Waypoint>, Error> {
+        let query_params = ListWayPointsParams {
+            r#type: waypoint_type,
+            r#trait: waypoint_trait,
+        };
+
+        let response: WaypointResponse = client
+            .get(
+                &format!("systems/{}/waypoints", symbol),
+                Some(&query_params),
+                reqwest::StatusCode::OK,
+            )
             .await?;
 
-        Ok(response.data)
+        Ok(response
+            .data
+            .into_iter()
+            .map(|data| Waypoint::new(client.clone(), data))
+            .collect())
+    }
+}
+
+impl System {
+    pub fn new(client: Arc<SpaceTradersClient>, symbol: &str) -> Self {
+        System {
+            client: client,
+            data: None,
+            symbol: symbol.into(),
+        }
+    }
+
+    pub fn with_data(client: Arc<SpaceTradersClient>, data: SystemData) -> Self {
+        System {
+            symbol: data.symbol.clone(),
+            data: Some(data),
+            client,
+        }
+    }
+
+    pub async fn get_data(&mut self) -> Result<SystemData, Error> {
+        let data = match &self.data {
+            Some(cached) => cached.clone(),
+            None => {
+                let fetched = System::get_system_data(&self.client, &self.symbol).await?;
+                self.data = Some(fetched.clone());
+                fetched
+            }
+        };
+
+        Ok(data)
+    }
+
+    pub async fn list_waypoints(
+        &self,
+        waypoint_type: Option<WaypointType>,
+        waypoint_trait: Option<WaypointTraitSymbol>,
+    ) -> Result<Vec<Waypoint>, Error> {
+        System::list_system_waypoints(&self.client, &self.symbol, waypoint_type, waypoint_trait)
+            .await
     }
 }
 
@@ -309,19 +341,22 @@ pub mod tests {
         )
         .await;
 
-        let client = SpaceTradersClient::with_url(&mock_server.url(), None);
+        let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
 
         let actual = System::list_systems(&client, Some(1), Some(2))
             .await
             .unwrap();
 
-        let expected = vec![some_neutron_star(), some_blue_star()];
+        let expected = vec![
+            System::with_data(client.clone(), some_neutron_star()),
+            System::with_data(client.clone(), some_blue_star()),
+        ];
 
         assert_eq!(expected, actual);
     }
 
     #[tokio::test]
-    async fn should_get_system_data_with_just_a_client() {
+    async fn should_get_system_data() {
         let mock_server = MockServerBuilder::mock_once(
             RequestMethod::Get,
             "systems/X1-AG18",
@@ -336,6 +371,26 @@ pub mod tests {
         let actual = System::get_system_data(&client, "X1-AG18").await.unwrap();
 
         let expected = some_system_data();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[tokio::test]
+    async fn should_get_system() {
+        let mock_server = MockServerBuilder::mock_once(
+            RequestMethod::Get,
+            "systems/X1-AG18",
+            200,
+            None,
+            None::<&()>,
+        )
+        .await;
+
+        let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
+
+        let actual = System::get_system(client.clone(), "X1-AG18").await.unwrap();
+
+        let expected = System::with_data(client.clone(), some_system_data());
 
         assert_eq!(expected, actual);
     }
@@ -363,7 +418,35 @@ pub mod tests {
     }
 
     #[tokio::test]
-    async fn list_way_points_request_should_be_sent_parsed_and_returned() {
+    async fn should_list_waypoints() {
+        let mock_server = MockServerBuilder::mock_once::<serde_json::Value>(
+            RequestMethod::Get,
+            "systems/X1-MH3/waypoints",
+            200,
+            None,
+            None,
+        )
+        .await;
+
+        let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
+
+        let actual = System::list_system_waypoints(&client, "X1-MH3", None, None)
+            .await
+            .unwrap();
+
+        let expected = vec![
+            Waypoint::new(client.clone(), some_planet()),
+            Waypoint::new(client.clone(), some_engineered_asteroid()),
+            Waypoint::new(client.clone(), some_fuel_station()),
+            Waypoint::new(client.clone(), some_asteroid_base()),
+            Waypoint::new(client.clone(), some_asteroid()),
+        ];
+
+        assert_eq!(expected, actual)
+    }
+
+    #[tokio::test]
+    async fn should_list_waypoints_with_an_object() {
         let mock_server = MockServerBuilder::mock_once::<serde_json::Value>(
             RequestMethod::Get,
             "systems/X1-MH3/waypoints",
@@ -391,7 +474,7 @@ pub mod tests {
     }
 
     #[tokio::test]
-    async fn list_way_points_with_planet_type_request_should_be_sent_parsed_and_returned() {
+    async fn should_list_waypoints_with_a_certain_type_with_an_object() {
         let mock_server = MockServerBuilder::mock_once(
             RequestMethod::Get,
             "systems/X1-MH3/waypoints",
@@ -416,7 +499,7 @@ pub mod tests {
     }
 
     #[tokio::test]
-    async fn list_way_points_with_trait_shipyard_request_should_be_sent_parsed_and_returned() {
+    async fn should_list_waypoints_with_a_certain_trait_with_an_object() {
         let mock_server = MockServerBuilder::mock_once(
             RequestMethod::Get,
             "systems/X1-MH3/waypoints",

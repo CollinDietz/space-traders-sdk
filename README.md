@@ -60,27 +60,31 @@ Function:
 
 ```rust
 system.list_waypoints(waypoint_type, waypoint_trait)
+
+System::list_system_waypoints(client, symbol, waypoint_type, waypoint_trait)
 ```
 
-### Get Waypoint
+### Waypoint
+
+#### Get Waypoint
 
 Endpoint: <https://spacetraders.io/openapi#tag/systems/GET/systems/{systemSymbol}/waypoints/{waypointSymbol}>
 
 Unimplemented
 
-### Get Construction Site
+#### Get Construction Site
 
 Endpoint: <https://spacetraders.io/openapi#tag/systems/GET/systems/{systemSymbol}/waypoints/{waypointSymbol}/construction>
 
 Unimplemented
 
-### Supply Construction Site
+#### Supply Construction Site
 
 Endpoint: <https://spacetraders.io/openapi#tag/systems/POST/systems/{systemSymbol}/waypoints/{waypointSymbol}/construction/supply>
 
 Unimplemented
 
-### Get Market
+#### Get Market
 
 Endpoint: <https://spacetraders.io/openapi#tag/systems/GET/systems/{systemSymbol}/waypoints/{waypointSymbol}/market>
 
@@ -88,13 +92,13 @@ Endpoint: <https://spacetraders.io/openapi#tag/systems/GET/systems/{systemSymbol
 waypoint.get_market()
 ```
 
-### Get Jump Gate
+#### Get Jump Gate
 
 Endpoint: <https://spacetraders.io/openapi#tag/systems/GET/systems/{systemSymbol}/waypoints/{waypointSymbol}/jump-gate>
 
 Unimplemented
 
-### Get Shipyard
+#### Get Shipyard
 
 Endpoint: <https://spacetraders.io/openapi#tag/systems/GET/systems/{systemSymbol}/waypoints/{waypointSymbol}/shipyard>
 
