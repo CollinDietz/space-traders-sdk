@@ -157,7 +157,7 @@ impl System {
         Ok(response
             .data
             .into_iter()
-            .map(|data| Waypoint::new(client.clone(), data))
+            .map(|data| Waypoint::with_data(client.clone(), data))
             .collect())
     }
 }
@@ -435,11 +435,11 @@ pub mod tests {
             .unwrap();
 
         let expected = vec![
-            Waypoint::new(client.clone(), some_planet()),
-            Waypoint::new(client.clone(), some_engineered_asteroid()),
-            Waypoint::new(client.clone(), some_fuel_station()),
-            Waypoint::new(client.clone(), some_asteroid_base()),
-            Waypoint::new(client.clone(), some_asteroid()),
+            Waypoint::with_data(client.clone(), some_planet()),
+            Waypoint::with_data(client.clone(), some_engineered_asteroid()),
+            Waypoint::with_data(client.clone(), some_fuel_station()),
+            Waypoint::with_data(client.clone(), some_asteroid_base()),
+            Waypoint::with_data(client.clone(), some_asteroid()),
         ];
 
         assert_eq!(expected, actual)
@@ -463,11 +463,11 @@ pub mod tests {
         let actual = system.list_waypoints(None, None).await.unwrap();
 
         let expected = vec![
-            Waypoint::new(client.clone(), some_planet()),
-            Waypoint::new(client.clone(), some_engineered_asteroid()),
-            Waypoint::new(client.clone(), some_fuel_station()),
-            Waypoint::new(client.clone(), some_asteroid_base()),
-            Waypoint::new(client.clone(), some_asteroid()),
+            Waypoint::with_data(client.clone(), some_planet()),
+            Waypoint::with_data(client.clone(), some_engineered_asteroid()),
+            Waypoint::with_data(client.clone(), some_fuel_station()),
+            Waypoint::with_data(client.clone(), some_asteroid_base()),
+            Waypoint::with_data(client.clone(), some_asteroid()),
         ];
 
         assert_eq!(expected, actual)
@@ -493,7 +493,7 @@ pub mod tests {
             .await
             .unwrap();
 
-        let expected = vec![Waypoint::new(client.clone(), some_planet())];
+        let expected = vec![Waypoint::with_data(client.clone(), some_planet())];
 
         assert_eq!(expected, actual)
     }
@@ -518,7 +518,7 @@ pub mod tests {
             .await
             .unwrap();
 
-        let expected = vec![Waypoint::new(client.clone(), some_moon())];
+        let expected = vec![Waypoint::with_data(client.clone(), some_moon())];
 
         assert_eq!(expected, actual)
     }

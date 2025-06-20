@@ -14,7 +14,7 @@ use crate::{
 pub mod market;
 pub mod shipyard;
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WaypointData {
     pub symbol: String,
@@ -37,26 +37,26 @@ pub struct WaypointOrbital {
     pub symbol: String,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct WaypointFaction {
     pub symbol: Factions,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct WaypointTrait {
     pub symbol: WaypointTraitSymbol,
     pub name: String,
     pub description: String,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct WaypointModifier {
     pub symbol: WaypointModifierSymbol,
     pub name: String,
     pub description: String,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Chart {
     pub waypoint_symbol: String,
@@ -157,7 +157,7 @@ pub enum WaypointTraitSymbol {
     Stripped,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum WaypointModifierSymbol {
     Stripped,
@@ -169,7 +169,8 @@ pub enum WaypointModifierSymbol {
 
 #[derive(Debug, PartialEq)]
 pub struct Waypoint {
-    pub data: WaypointData,
+    symbol: String,
+    data: Option<WaypointData>,
     client: Arc<SpaceTradersClient>,
 }
 
@@ -201,7 +202,8 @@ impl Waypoint {
         symbol: &str,
     ) -> Result<Self, Error> {
         Ok(Waypoint {
-            data: Waypoint::get_waypoint_data(&client, system_symbol, symbol).await?,
+            symbol: symbol.to_string(),
+            data: Some(Waypoint::get_waypoint_data(&client, system_symbol, symbol).await?),
             client: client,
         })
     }
@@ -240,21 +242,50 @@ impl Waypoint {
 }
 
 impl Waypoint {
-    pub fn new(client: Arc<SpaceTradersClient>, data: WaypointData) -> Self {
+    pub fn new(client: Arc<SpaceTradersClient>, symbol: &str) -> Self {
         Waypoint {
+            symbol: symbol.to_string(),
+            client,
+            data: None,
+        }
+    }
+
+    pub fn with_data(client: Arc<SpaceTradersClient>, data: WaypointData) -> Self {
+        Waypoint {
+            symbol: data.symbol.clone(),
             client: client,
-            data,
+            data: Some(data),
+        }
+    }
+
+    pub async fn get_data(&mut self) -> Result<WaypointData, Error> {
+        let data = match &self.data {
+            Some(cached) => cached.clone(),
+            None => {
+                let fetched =
+                    Waypoint::get_waypoint_data(&self.client, self.system_symbol(), &self.symbol)
+                        .await?;
+                self.data = Some(fetched.clone());
+                fetched
+            }
+        };
+
+        Ok(data)
+    }
+
+    fn system_symbol(&self) -> &str {
+        match self.symbol.rfind('-') {
+            Some(pos) => &self.symbol[..pos],
+            None => &self.symbol,
         }
     }
 
     pub async fn get_shipyard(&self) -> Result<Shipyard, Error> {
-        Waypoint::get_waypoint_shipyard(&self.client, &self.data.system_symbol, &self.data.symbol)
-            .await
+        Waypoint::get_waypoint_shipyard(&self.client, self.system_symbol(), &self.symbol).await
     }
 
     pub async fn get_market(&self) -> Result<Market, Error> {
-        Waypoint::get_waypoint_market(&self.client, &self.data.system_symbol, &self.data.symbol)
-            .await
+        Waypoint::get_waypoint_market(&self.client, self.system_symbol(), &self.symbol).await
     }
 }
 
@@ -558,7 +589,28 @@ pub mod tests {
             .await
             .unwrap();
 
-        let expected = Waypoint::new(client.clone(), some_moon());
+        let expected = Waypoint::with_data(client.clone(), some_moon());
+
+        assert_eq!(expected, actual)
+    }
+
+    #[tokio::test]
+    async fn should_get_data_with_object() {
+        let mock_server = MockServerBuilder::mock_once::<serde_json::Value>(
+            RequestMethod::Get,
+            "systems/X1-MH3/waypoints/X1-MH3-A2",
+            200,
+            None,
+            None,
+        )
+        .await;
+
+        let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
+
+        let mut waypoint = Waypoint::new(client.clone(), "X1-MH3-A2");
+        let actual = waypoint.get_data().await.unwrap();
+
+        let expected = some_moon();
 
         assert_eq!(expected, actual)
     }
@@ -598,7 +650,7 @@ pub mod tests {
 
         let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
 
-        let waypoint = Waypoint::new(client.clone(), some_moon());
+        let waypoint = Waypoint::new(client.clone(), "X1-MH3-A2");
         let actual = waypoint.get_shipyard().await.unwrap();
 
         let expected = some_shipyard();
@@ -641,7 +693,7 @@ pub mod tests {
 
         let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
 
-        let waypoint = Waypoint::new(client.clone(), some_moon());
+        let waypoint = Waypoint::new(client.clone(), "X1-MH3-A2");
         let actual = waypoint.get_market().await.unwrap();
 
         let expected = some_market();
