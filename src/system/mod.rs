@@ -12,16 +12,6 @@ use crate::{
 
 pub mod waypoint;
 
-#[derive(Debug, PartialEq, Deserialize)]
-pub struct SystemResponse {
-    pub data: SystemData,
-}
-
-#[derive(Debug, PartialEq, Deserialize)]
-pub struct ListSystemResponse {
-    pub data: Vec<SystemData>,
-}
-
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SystemData {
@@ -72,6 +62,16 @@ pub struct System {
     client: Arc<SpaceTradersClient>,
 }
 
+#[derive(Debug, PartialEq, Deserialize)]
+pub struct SystemResponse {
+    pub data: SystemData,
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+pub struct ListSystemResponse {
+    pub data: Vec<SystemData>,
+}
+
 #[derive(Deserialize)]
 pub struct WaypointResponse {
     data: Vec<WaypointData>,
@@ -92,6 +92,7 @@ struct ListSystemParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<u8>,
 }
+
 impl System {
     pub fn new(client: Arc<SpaceTradersClient>, symbol: &str) -> Self {
         System {
@@ -298,7 +299,7 @@ pub mod tests {
     }
 
     #[tokio::test]
-    async fn should_list_system_data_with_just_a_client() {
+    async fn should_list_systems() {
         let mock_server = MockServerBuilder::mock_once(
             RequestMethod::Get,
             "systems",
