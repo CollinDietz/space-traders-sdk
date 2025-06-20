@@ -2,7 +2,7 @@ use serde_derive::Deserialize;
 
 use super::Requirements;
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Mount {
     pub symbol: MountType,
@@ -13,7 +13,7 @@ pub struct Mount {
     pub requirements: Requirements,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub enum MountType {
     #[serde(rename = "MOUNT_GAS_SIPHON_I")]
     GasSiphonI,
@@ -47,7 +47,7 @@ pub enum MountType {
     TurretI,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ResourceType {
     QuartzSand,

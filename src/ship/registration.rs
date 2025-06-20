@@ -2,7 +2,7 @@ use serde_derive::Deserialize;
 
 use crate::faction::Factions;
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Registration {
     pub name: String,
@@ -10,7 +10,7 @@ pub struct Registration {
     pub role: ShipRole,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum ShipRole {
     Fabricator,

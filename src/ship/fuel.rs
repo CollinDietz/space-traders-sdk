@@ -1,6 +1,6 @@
 use serde_derive::Deserialize;
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Fuel {
     pub current: i32,
@@ -8,7 +8,7 @@ pub struct Fuel {
     pub consumed: Option<FuelConsumed>,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FuelConsumed {
     pub amount: i32,

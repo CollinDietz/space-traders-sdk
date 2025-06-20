@@ -1,6 +1,6 @@
 use serde_derive::Deserialize;
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Crew {
     pub current: i32,
@@ -11,7 +11,7 @@ pub struct Crew {
     pub wages: i32,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum RotationMode {
     Strict,

@@ -2,7 +2,7 @@ use serde_derive::Deserialize;
 
 use super::Requirements;
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Engine {
     pub symbol: EngineType,
@@ -13,7 +13,7 @@ pub struct Engine {
     pub requirements: Requirements,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub enum EngineType {
     #[serde(rename = "ENGINE_IMPULSE_DRIVE_I")]
     ImpulseDriveI,

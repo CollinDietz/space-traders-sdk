@@ -264,11 +264,11 @@ Todo
 
 Endpoint: <https://spacetraders.io/openapi#tag/fleet/GET/my/ships/{shipSymbol}>
 
-Unimplemented
+```rust
+ship.get_data()
 
-Todo
-
-- Implement: `Ship::get_ship_data()` and `ship.get_data()`
+Ship::get_ship_data(client, symbol)
+```
 
 ### Create Chart
 

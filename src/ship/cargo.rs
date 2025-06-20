@@ -1,6 +1,6 @@
 use serde_derive::Deserialize;
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Cargo {
     pub capacity: i32,
@@ -8,7 +8,7 @@ pub struct Cargo {
     pub inventory: Vec<InventoryItem>,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InventoryItem {
     pub symbol: String,

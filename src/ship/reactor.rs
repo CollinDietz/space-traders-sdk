@@ -2,7 +2,7 @@ use serde_derive::Deserialize;
 
 use super::Requirements;
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Reactor {
     pub symbol: ReactorType,
@@ -13,7 +13,7 @@ pub struct Reactor {
     pub requirements: Requirements,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub enum ReactorType {
     #[serde(rename = "REACTOR_SOLAR_I")]
     SolarI,

@@ -1,6 +1,6 @@
 use serde_derive::Deserialize;
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Nav {
     pub system_symbol: String,
@@ -10,7 +10,7 @@ pub struct Nav {
     pub flight_mode: FlightMode,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Route {
     pub destination: Location,
@@ -19,7 +19,7 @@ pub struct Route {
     pub arrival: String,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Location {
     pub symbol: String,
@@ -30,7 +30,7 @@ pub struct Location {
     pub y: i32,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum LocationType {
     Planet,
@@ -44,7 +44,7 @@ pub enum LocationType {
     GravityWell,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum ShipStatus {
     InTransit,
@@ -52,7 +52,7 @@ pub enum ShipStatus {
     Docked,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum FlightMode {
     Drift,

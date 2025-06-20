@@ -2,7 +2,7 @@ use serde_derive::Deserialize;
 
 use super::Requirements;
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Frame {
     pub symbol: FrameType,
@@ -15,7 +15,7 @@ pub struct Frame {
     pub requirements: Requirements,
 }
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub enum FrameType {
     #[serde(rename = "FRAME_PROBE")]
     Probe,

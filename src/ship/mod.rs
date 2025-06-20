@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use serde_derive::Deserialize;
 
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ShipData {
     pub symbol: String,
@@ -110,6 +110,19 @@ impl Ship {
             data: Some(data),
         }
     }
+
+    pub async fn get_data(&mut self) -> Result<ShipData, Error> {
+        let data = match &self.data {
+            Some(cached) => cached.clone(),
+            None => {
+                let fetched = Ship::get_ship_data(&self.client, &self.symbol).await?;
+                self.data = Some(fetched.clone());
+                fetched
+            }
+        };
+
+        Ok(data)
+    }
 }
 
 #[cfg(test)]
@@ -194,6 +207,28 @@ pub mod tests {
         let actual = Ship::get_ship(client.clone(), "BADGER-1").await.unwrap();
 
         let expected = Ship::with_data(client.clone(), some_ship());
+
+        assert_eq!(expected, actual);
+    }
+
+    #[tokio::test]
+    async fn should_get_ship_data_with_object() {
+        let mock_server = MockServerBuilder::mock_once(
+            RequestMethod::Get,
+            "my/ships/BADGER-1",
+            200,
+            None,
+            None::<&()>,
+        )
+        .await;
+
+        let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
+
+        let mut ship = Ship::new(client.clone(), "BADGER-1");
+
+        let actual = ship.get_data().await.unwrap();
+
+        let expected = some_ship();
 
         assert_eq!(expected, actual);
     }
