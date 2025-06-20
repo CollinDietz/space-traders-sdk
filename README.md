@@ -47,9 +47,9 @@ Endpoint: <https://spacetraders.io/openapi#tag/systems/GET/systems/{systemSymbol
 Function:
 
 ```rust
-system.get_data()
+system.get_data() -> SystemData
 
-System::get_system_data(client, symbol)
+System::get_system_data(client, symbol) -> SystemData
 ```
 
 ### List Waypoints In A System
@@ -59,9 +59,9 @@ Endpoint: <https://spacetraders.io/openapi#tag/systems/GET/systems/{systemSymbol
 Function:
 
 ```rust
-system.list_waypoints(waypoint_type, waypoint_trait)
+system.list_waypoints(waypoint_type, waypoint_trait) -> Vec<Waypoint>
 
-System::list_system_waypoints(client, symbol, waypoint_type, waypoint_trait)
+System::list_system_waypoints(client, symbol, waypoint_type, waypoint_trait) -> Vec<Waypoint>
 ```
 
 ### Waypoint
@@ -70,7 +70,11 @@ System::list_system_waypoints(client, symbol, waypoint_type, waypoint_trait)
 
 Endpoint: <https://spacetraders.io/openapi#tag/systems/GET/systems/{systemSymbol}/waypoints/{waypointSymbol}>
 
-Unimplemented
+```rust
+waypoint.get_data() -> WaypointData
+
+Waypoint::get_waypoint_data(client, system_symbol, symbol) -> WaypointData
+```
 
 #### Get Construction Site
 
@@ -89,7 +93,9 @@ Unimplemented
 Endpoint: <https://spacetraders.io/openapi#tag/systems/GET/systems/{systemSymbol}/waypoints/{waypointSymbol}/market>
 
 ```rust
-waypoint.get_market()
+waypoint.get_market() -> Market
+
+Waypoint::get_waypoint_market(client, system_symbol, symbol) -> Market
 ```
 
 #### Get Jump Gate
@@ -103,5 +109,8 @@ Unimplemented
 Endpoint: <https://spacetraders.io/openapi#tag/systems/GET/systems/{systemSymbol}/waypoints/{waypointSymbol}/shipyard>
 
 ```rust
-waypoint.get_shipyard()
+waypoint.get_shipyard() -> Shipyard
+
+Waypoint::get_waypoint_shipyard(client, system_symbol, symbol) -> Shipyard
+
 ```

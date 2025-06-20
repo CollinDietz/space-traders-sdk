@@ -1,11 +1,6 @@
 use serde_derive::Deserialize;
 
 #[derive(Debug, PartialEq, Deserialize)]
-pub struct MarketResponse {
-    pub data: Market,
-}
-
-#[derive(Debug, PartialEq, Deserialize)]
 pub struct Market {
     pub symbol: String,
     pub exports: Vec<TradeGood>,
@@ -233,7 +228,10 @@ pub enum TradeSymbol {
 pub mod tests {
     use crate::{
         string,
-        system::waypoint::market::{Market, MarketResponse, TradeGood, TradeSymbol},
+        system::waypoint::{
+            market::{Market, TradeGood, TradeSymbol},
+            MarketResponse,
+        },
     };
 
     pub fn some_market() -> Market {
@@ -262,7 +260,7 @@ pub mod tests {
         }
     }
 
-    pub fn some_market_response() -> MarketResponse {
+    fn some_market_response() -> MarketResponse {
         MarketResponse {
             data: some_market(),
         }

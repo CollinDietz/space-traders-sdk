@@ -5,10 +5,7 @@ use serde_derive::{Deserialize, Serialize};
 use crate::{
     faction::Factions,
     space_traders_client::{Error, SpaceTradersClient},
-    system::waypoint::{
-        market::{Market, MarketResponse},
-        shipyard::{Shipyard, ShipyardResponse},
-    },
+    system::waypoint::{market::Market, shipyard::Shipyard},
 };
 
 pub mod market;
@@ -177,6 +174,16 @@ pub struct Waypoint {
 #[derive(Debug, Deserialize)]
 struct WaypointResponse {
     data: WaypointData,
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+struct ShipyardResponse {
+    data: Shipyard,
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+struct MarketResponse {
+    data: Market,
 }
 
 impl Waypoint {

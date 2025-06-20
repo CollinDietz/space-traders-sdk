@@ -6,11 +6,6 @@ use crate::{
 };
 
 #[derive(Debug, PartialEq, Deserialize)]
-pub struct ShipyardResponse {
-    pub data: Shipyard,
-}
-
-#[derive(Debug, PartialEq, Deserialize)]
 pub struct Shipyard {
     pub symbol: String,
     #[serde(rename = "shipTypes")]
@@ -87,7 +82,10 @@ pub struct ShipyardTransaction {
 pub mod tests {
     use crate::{
         string,
-        system::waypoint::shipyard::{ShipType, ShipTypeWrapper, Shipyard, ShipyardResponse},
+        system::waypoint::{
+            shipyard::{ShipType, ShipTypeWrapper, Shipyard},
+            ShipyardResponse,
+        },
     };
 
     pub fn some_shipyard() -> Shipyard {
@@ -110,7 +108,7 @@ pub mod tests {
         }
     }
 
-    pub fn some_shipyard_response() -> ShipyardResponse {
+    fn some_shipyard_response() -> ShipyardResponse {
         ShipyardResponse {
             data: some_shipyard(),
         }

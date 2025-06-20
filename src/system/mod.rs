@@ -64,17 +64,17 @@ pub struct System {
 }
 
 #[derive(Debug, PartialEq, Deserialize)]
-pub struct SystemResponse {
-    pub data: SystemData,
+struct SystemResponse {
+    data: SystemData,
 }
 
 #[derive(Debug, PartialEq, Deserialize)]
-pub struct ListSystemResponse {
-    pub data: Vec<SystemData>,
+struct ListSystemResponse {
+    data: Vec<SystemData>,
 }
 
 #[derive(Deserialize)]
-pub struct WaypointResponse {
+struct WaypointResponse {
     data: Vec<WaypointData>,
 }
 
