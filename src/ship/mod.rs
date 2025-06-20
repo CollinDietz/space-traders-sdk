@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use serde_derive::Deserialize;
 
 #[derive(Debug, PartialEq, Deserialize)]
@@ -53,8 +55,67 @@ pub use mount::*;
 mod fuel;
 pub use fuel::*;
 
+use crate::space_traders_client::{Error, SpaceTradersClient};
+
+#[derive(Debug, PartialEq, Deserialize)]
+struct ShipDataResponse {
+    data: ShipData,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Ship {
+    symbol: String,
+    client: Arc<SpaceTradersClient>,
+    data: Option<ShipData>,
+}
+
+impl Ship {
+    pub async fn get_ship_data(
+        client: &SpaceTradersClient,
+        symbol: &str,
+    ) -> Result<ShipData, Error> {
+        let response: ShipDataResponse = client
+            .get(
+                &format!("my/ships/{}", symbol),
+                None::<&()>,
+                reqwest::StatusCode::OK,
+            )
+            .await?;
+
+        Ok(response.data)
+    }
+
+    pub async fn get_ship(client: Arc<SpaceTradersClient>, symbol: &str) -> Result<Self, Error> {
+        Ok(Ship {
+            data: Some(Ship::get_ship_data(&client, symbol).await?),
+            symbol: symbol.to_string(),
+            client: client,
+        })
+    }
+}
+
+impl Ship {
+    pub fn new(client: Arc<SpaceTradersClient>, symbol: &str) -> Self {
+        Ship {
+            client: client.clone(),
+            symbol: symbol.to_string(),
+            data: None,
+        }
+    }
+
+    pub fn with_data(client: Arc<SpaceTradersClient>, data: ShipData) -> Self {
+        Ship {
+            client: client.clone(),
+            symbol: data.symbol.to_string(),
+            data: Some(data),
+        }
+    }
+}
+
 #[cfg(test)]
 pub mod tests {
+    use mock_server::{MockServerBuilder, RequestMethod};
+
     use super::cargo::tests::*;
     use super::cooldown::tests::*;
     use super::crew::tests::*;
@@ -95,6 +156,46 @@ pub mod tests {
             cargo: some_cargo(),
             fuel: some_fuel(),
         }
+    }
+
+    #[tokio::test]
+    async fn should_get_ship_data() {
+        let mock_server = MockServerBuilder::mock_once(
+            RequestMethod::Get,
+            "my/ships/BADGER-1",
+            200,
+            None,
+            None::<&()>,
+        )
+        .await;
+
+        let client = SpaceTradersClient::with_url(&mock_server.url(), None);
+
+        let actual = Ship::get_ship_data(&client, "BADGER-1").await.unwrap();
+
+        let expected = some_ship();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[tokio::test]
+    async fn should_get_ship() {
+        let mock_server = MockServerBuilder::mock_once(
+            RequestMethod::Get,
+            "my/ships/BADGER-1",
+            200,
+            None,
+            None::<&()>,
+        )
+        .await;
+
+        let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
+
+        let actual = Ship::get_ship(client.clone(), "BADGER-1").await.unwrap();
+
+        let expected = Ship::with_data(client.clone(), some_ship());
+
+        assert_eq!(expected, actual);
     }
 
     #[test]
@@ -441,17 +542,6 @@ pub mod tests {
         let actual: ShipData = serde_json::from_str(json_str).unwrap();
         let expected = some_other_ship();
 
-        assert_eq!(expected.cargo, actual.cargo);
-        assert_eq!(expected.cooldown, actual.cooldown);
-        assert_eq!(expected.crew, actual.crew);
-        assert_eq!(expected.engine, actual.engine);
-        assert_eq!(expected.frame, actual.frame);
-        assert_eq!(expected.fuel, actual.fuel);
-        assert_eq!(expected.modules, actual.modules);
-        assert_eq!(expected.mounts, actual.mounts);
-        assert_eq!(expected.nav, actual.nav);
-        assert_eq!(expected.reactor, actual.reactor);
-        assert_eq!(expected.registration, actual.registration);
-        assert_eq!(expected.symbol, actual.symbol);
+        assert_eq!(expected, actual);
     }
 }

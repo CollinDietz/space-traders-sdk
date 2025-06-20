@@ -7,25 +7,25 @@
             "role": "COMMAND"
         },
         "nav": {
-            "systemSymbol": "X1-AG18",
-            "waypointSymbol": "X1-AG18-A1",
+            "systemSymbol": "X1-RC42",
+            "waypointSymbol": "X1-RC42-A1",
             "route": {
                 "destination": {
-                    "symbol": "X1-AG18-A1",
+                    "symbol": "X1-RC42-A1",
                     "type": "PLANET",
-                    "systemSymbol": "X1-AG18",
-                    "x": -10,
-                    "y": -24
+                    "systemSymbol": "X1-RC42",
+                    "x": -22,
+                    "y": -3
                 },
                 "origin": {
-                    "symbol": "X1-AG18-A1",
+                    "symbol": "X1-RC42-A1",
                     "type": "PLANET",
-                    "systemSymbol": "X1-AG18",
-                    "x": -10,
-                    "y": -24
+                    "systemSymbol": "X1-RC42",
+                    "x": -22,
+                    "y": -3
                 },
-                "departureTime": "2025-06-17T11:49:18.496Z",
-                "arrival": "2025-06-17T11:49:18.496Z"
+                "departureTime": "2025-05-29T22:47:42.914Z",
+                "arrival": "2025-05-29T22:47:42.914Z"
             },
             "status": "DOCKED",
             "flightMode": "CRUISE"
@@ -200,7 +200,7 @@
             "capacity": 400,
             "consumed": {
                 "amount": 0,
-                "timestamp": "2025-06-17T11:49:18.496Z"
+                "timestamp": "2025-05-29T22:47:42.914Z"
             }
         },
         "cooldown": {
