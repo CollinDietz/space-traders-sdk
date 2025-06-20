@@ -5,7 +5,7 @@ use serde_derive::{Deserialize, Serialize};
 use crate::agent::{Agent, AgentData};
 use crate::contract::ContractData;
 use crate::faction::{Faction, Factions};
-use crate::ship::Ship;
+use crate::ship::ShipData;
 use crate::space_traders_client::{Error, SpaceTradersClient};
 
 #[derive(Debug, PartialEq, Serialize)]
@@ -20,7 +20,7 @@ pub struct RegistrationResponseData {
     pub agent: AgentData,
     pub contract: ContractData,
     pub faction: Faction,
-    pub ships: Vec<Ship>,
+    pub ships: Vec<ShipData>,
     pub token: String,
 }
 

@@ -2,7 +2,7 @@ use serde_derive::Deserialize;
 
 #[derive(Debug, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Ship {
+pub struct ShipData {
     pub symbol: String,
     pub registration: Registration,
     pub nav: Nav,
@@ -69,8 +69,8 @@ pub mod tests {
     use crate::ship::registration::tests::*;
     use crate::string;
 
-    pub fn some_ship() -> Ship {
-        Ship {
+    pub fn some_ship() -> ShipData {
+        ShipData {
             symbol: string!("BADGER-1"),
             registration: some_registration(),
             nav: some_nav(),
@@ -311,14 +311,14 @@ pub mod tests {
             }
          }"#;
 
-        let actual: Ship = serde_json::from_str(json_str).unwrap();
+        let actual: ShipData = serde_json::from_str(json_str).unwrap();
         let expected = some_ship();
 
         assert_eq!(expected, actual);
     }
 
-    pub fn some_other_ship() -> Ship {
-        Ship {
+    pub fn some_other_ship() -> ShipData {
+        ShipData {
             symbol: string!("BADGER-2"),
             registration: some_other_registration(),
             nav: some_other_nav(),
@@ -438,7 +438,7 @@ pub mod tests {
         }
       }"#;
 
-        let actual: Ship = serde_json::from_str(json_str).unwrap();
+        let actual: ShipData = serde_json::from_str(json_str).unwrap();
         let expected = some_other_ship();
 
         assert_eq!(expected.cargo, actual.cargo);
