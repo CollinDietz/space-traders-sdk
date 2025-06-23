@@ -62,6 +62,16 @@ struct ShipDataResponse {
     data: ShipData,
 }
 
+#[derive(Debug, PartialEq, Deserialize)]
+struct NavChangeData {
+    nav: Nav,
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+struct NavChangeResponse {
+    data: NavChangeData,
+}
+
 #[derive(Debug, PartialEq)]
 pub struct Ship {
     symbol: String,
@@ -123,6 +133,21 @@ impl Ship {
 
         Ok(data)
     }
+
+    pub async fn go_to_orbit(&mut self) -> Result<Nav, Error> {
+        println!("my/ships/{}/orbit", self.symbol);
+        let response: NavChangeResponse = self
+            .client
+            .post(
+                &format!("my/ships/{}/orbit", self.symbol),
+                reqwest::StatusCode::OK,
+            )
+            .await?;
+
+        self.data.as_mut().unwrap().nav = response.data.nav;
+
+        Ok(self.data.as_ref().unwrap().nav.clone())
+    }
 }
 
 #[cfg(test)]
@@ -140,6 +165,7 @@ pub mod tests {
     use super::nav::tests::nav::*;
     use super::reactor::tests::*;
     use super::*;
+    use crate::faction::Factions;
     use crate::ship::registration::tests::*;
     use crate::string;
 
@@ -168,6 +194,85 @@ pub mod tests {
             ],
             cargo: some_cargo(),
             fuel: some_fuel(),
+        }
+    }
+
+    pub fn some_other_ship() -> ShipData {
+        ShipData {
+            symbol: string!("BADGER-2"),
+            registration: some_other_registration(),
+            nav: some_other_nav(),
+            crew: empty_crew(),
+            frame: some_probe_frame(),
+            reactor: some_solar_reactor(),
+            engine: some_impluse_drive(),
+            cooldown: some_cooldown(string!("BADGER-2")),
+            modules: vec![],
+            mounts: vec![],
+            cargo: no_capacity_cargo(),
+            fuel: empty_fuel(),
+        }
+    }
+
+    fn snake_ship() -> ShipData {
+        ShipData {
+            symbol: string!("SNAKE-1"),
+            registration: Registration {
+                name: string!("SNAKE-1"),
+                faction_symbol: Factions::Cosmic,
+                role: ShipRole::Command,
+            },
+            nav: Nav {
+                system_symbol: string!("X1-CB91"),
+                waypoint_symbol: string!("X1-CB91-A1"),
+                route: Route {
+                    destination: Location {
+                        symbol: string!("X1-CB91-A1"),
+                        location_type: LocationType::Planet,
+                        system_symbol: string!("X1-CB91"),
+                        x: -18,
+                        y: 15,
+                    },
+                    origin: Location {
+                        symbol: string!("X1-CB91-A1"),
+                        location_type: LocationType::Planet,
+                        system_symbol: string!("X1-CB91"),
+                        x: -18,
+                        y: 15,
+                    },
+                    departure_time: string!("2025-06-23T02:20:47.405Z"),
+                    arrival: string!("2025-06-23T02:20:47.405Z"),
+                },
+                status: ShipStatus::Docked,
+                flight_mode: FlightMode::Cruise,
+            },
+            crew: some_crew(),
+            frame: some_frigate_frame(),
+            reactor: some_fission_reactor(),
+            engine: some_ion_drive_2(),
+            cooldown: some_cooldown(string!("SNAKE-1")),
+            modules: vec![
+                some_cargo_hold_2(),
+                some_crew_quarters(),
+                some_crew_quarters(),
+                some_mineral_processor(),
+                some_gas_processor(),
+            ],
+            mounts: vec![
+                some_sensor_array_2(),
+                some_gas_siphon_2(),
+                some_mining_laser_2(),
+                some_surveyor_2(),
+            ],
+            cargo: some_cargo(),
+            fuel: Fuel {
+                current: 400,
+                capacity: 400,
+                consumed: Some(FuelConsumed {
+                    amount: 0,
+                    timestamp: string!("2025-06-23T02:20:47.405Z"),
+                }),
+            },
         }
     }
 
@@ -229,6 +334,34 @@ pub mod tests {
         let actual = ship.get_data().await.unwrap();
 
         let expected = some_ship();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[tokio::test]
+    async fn should_send_ship_to_orbit() {
+        let mock_server = MockServerBuilder::mock_once(
+            RequestMethod::Post,
+            "my/ships/SNAKE-1/orbit",
+            200,
+            None,
+            None::<&()>,
+        )
+        .await;
+
+        let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
+
+        let mut ship = Ship::with_data(client.clone(), snake_ship());
+
+        let _ = ship.go_to_orbit().await;
+
+        let actual = ship;
+
+        let mut data = snake_ship();
+
+        data.nav.status = ShipStatus::InOrbit;
+
+        let expected = Ship::with_data(client.clone(), data);
 
         assert_eq!(expected, actual);
     }
@@ -451,23 +584,6 @@ pub mod tests {
         let expected = some_ship();
 
         assert_eq!(expected, actual);
-    }
-
-    pub fn some_other_ship() -> ShipData {
-        ShipData {
-            symbol: string!("BADGER-2"),
-            registration: some_other_registration(),
-            nav: some_other_nav(),
-            crew: empty_crew(),
-            frame: some_probe_frame(),
-            reactor: some_solar_reactor(),
-            engine: some_impluse_drive(),
-            cooldown: some_cooldown(string!("BADGER-2")),
-            modules: vec![],
-            mounts: vec![],
-            cargo: no_capacity_cargo(),
-            fuel: empty_fuel(),
-        }
     }
 
     #[test]

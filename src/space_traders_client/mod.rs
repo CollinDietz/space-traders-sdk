@@ -185,6 +185,7 @@ impl SpaceTradersClient {
                     match response.json::<R>().await {
                         Ok(res) => Ok(res),
                         Err(_e) => {
+                            println!("{}", _e);
                             todo!()
                         }
                     }

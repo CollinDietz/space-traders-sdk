@@ -45,7 +45,7 @@ pub enum LocationType {
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
-#[serde(rename_all = "UPPERCASE")]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ShipStatus {
     InTransit,
     InOrbit,
@@ -262,6 +262,7 @@ pub mod tests {
                 flight_mode: FlightMode::Cruise,
             }
         }
+
         #[test]
         fn some_other_nav_should_be_deserializable() {
             let json_str = r#"
@@ -292,6 +293,50 @@ pub mod tests {
 
             let actual: Nav = serde_json::from_str(json_str).unwrap();
             let expected = some_other_nav();
+
+            assert_eq!(expected, actual);
+        }
+
+        pub fn some_in_orbit_nav() -> Nav {
+            Nav {
+                system_symbol: string!("X1-RC42"),
+                waypoint_symbol: string!("X1-RC42-H53"),
+                route: some_other_route(),
+                status: ShipStatus::InOrbit,
+                flight_mode: FlightMode::Cruise,
+            }
+        }
+
+        #[test]
+        fn some_in_orbit_nav_should_be_deserializable() {
+            let json_str = r#"
+            {
+                "systemSymbol": "X1-RC42",
+                "waypointSymbol": "X1-RC42-H53",
+                "route": {
+                    "destination": {
+                        "symbol": "X1-RC42-H53",
+                        "type": "MOON",
+                        "systemSymbol": "X1-RC42",
+                        "x": -9,
+                        "y": -45
+                    },
+                    "origin": {
+                        "symbol": "X1-RC42-H53",
+                        "type": "MOON",
+                        "systemSymbol": "X1-RC42",
+                        "x": -9,
+                        "y": -45
+                    },
+                    "departureTime": "2025-05-29T22:47:42.923Z",
+                    "arrival": "2025-05-29T22:47:42.923Z"
+                },
+                "status": "IN_ORBIT",
+                "flightMode": "CRUISE"
+            }"#;
+
+            let actual: Nav = serde_json::from_str(json_str).unwrap();
+            let expected = some_in_orbit_nav();
 
             assert_eq!(expected, actual);
         }
