@@ -134,8 +134,7 @@ impl Ship {
         Ok(data)
     }
 
-    pub async fn go_to_orbit(&mut self) -> Result<Nav, Error> {
-        println!("my/ships/{}/orbit", self.symbol);
+    pub async fn go_to_orbit(&mut self) -> Result<(), Error> {
         let response: NavChangeResponse = self
             .client
             .post(
@@ -146,7 +145,21 @@ impl Ship {
 
         self.data.as_mut().unwrap().nav = response.data.nav;
 
-        Ok(self.data.as_ref().unwrap().nav.clone())
+        Ok(())
+    }
+
+    pub async fn dock(&mut self) -> Result<(), Error> {
+        let response: NavChangeResponse = self
+            .client
+            .post(
+                &format!("my/ships/{}/dock", self.symbol),
+                reqwest::StatusCode::OK,
+            )
+            .await?;
+
+        self.data.as_mut().unwrap().nav = response.data.nav;
+
+        Ok(())
     }
 }
 
@@ -362,6 +375,33 @@ pub mod tests {
         data.nav.status = ShipStatus::InOrbit;
 
         let expected = Ship::with_data(client.clone(), data);
+
+        assert_eq!(expected, actual);
+    }
+
+    #[tokio::test]
+    async fn should_dock_ship() {
+        let mock_server = MockServerBuilder::mock_once(
+            RequestMethod::Post,
+            "my/ships/SNAKE-1/dock",
+            200,
+            None,
+            None::<&()>,
+        )
+        .await;
+
+        let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
+
+        let mut data = snake_ship();
+        data.nav.status = ShipStatus::InOrbit;
+
+        let mut ship = Ship::with_data(client.clone(), data);
+
+        let _ = ship.dock().await;
+
+        let actual = ship;
+
+        let expected = Ship::with_data(client.clone(), snake_ship());
 
         assert_eq!(expected, actual);
     }

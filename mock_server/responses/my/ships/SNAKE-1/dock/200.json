@@ -1,0 +1,28 @@
+{
+  "data": {
+    "nav": {
+      "systemSymbol": "X1-CB91",
+      "waypointSymbol": "X1-CB91-A1",
+      "route": {
+        "destination": {
+          "symbol": "X1-CB91-A1",
+          "type": "PLANET",
+          "systemSymbol": "X1-CB91",
+          "x": -18,
+          "y": 15
+        },
+        "origin": {
+          "symbol": "X1-CB91-A1",
+          "type": "PLANET",
+          "systemSymbol": "X1-CB91",
+          "x": -18,
+          "y": 15
+        },
+        "departureTime": "2025-06-23T02:20:47.405Z",
+        "arrival": "2025-06-23T02:20:47.405Z"
+      },
+      "status": "DOCKED",
+      "flightMode": "CRUISE"
+    }
+  }
+}
