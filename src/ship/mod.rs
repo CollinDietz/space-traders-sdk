@@ -58,6 +58,54 @@ pub use fuel::*;
 use crate::space_traders_client::{Error, SpaceTradersClient};
 
 #[derive(Debug, PartialEq, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ShipConditionEventSymbol {
+    ReactorOverload,
+    EnergySpikeFromMineral,
+    SolarFlareInterference,
+    CoolantLeak,
+    PowerDistributionFluctuation,
+    MagneticFieldDisruption,
+    HullMicrometeoriteStrikes,
+    StructuralStressFractures,
+    CorrosiveMineralContamination,
+    ThermalExpansionMismatch,
+    VibrationDamageFromDrilling,
+    ElectromagneticFieldInterference,
+    ImpactWithExtractedDebris,
+    FuelEfficiencyDegradation,
+    CoolantSystemAgeing,
+    DustMicroabrasions,
+    ThrusterNozzleWear,
+    ExhaustPortClogging,
+    BearingLubricationFade,
+    SensorCalibrationDrift,
+    HullMicrometeoriteDamage,
+    SpaceDebrisCollision,
+    ThermalStress,
+    VibrationOverload,
+    PressureDifferentialStress,
+    ElectromagneticSurgeEffects,
+    AtmosphericEntryHeat,
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ShipComponent {
+    Frame,
+    Reactor,
+    Engine,
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+pub struct ShipConditionEvent {
+    pub symbol: ShipConditionEventSymbol,
+    pub component: ShipComponent,
+    pub name: String,
+    pub description: String,
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
 struct ShipDataResponse {
     data: ShipData,
 }
@@ -70,6 +118,18 @@ struct NavChangeData {
 #[derive(Debug, PartialEq, Deserialize)]
 struct NavChangeResponse {
     data: NavChangeData,
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+struct NavigateData {
+    nav: Nav,
+    fuel: Fuel,
+    // events: Vec<ShipConditionEvent>, // TODO: something with this
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+struct NavigateResponse {
+    data: NavigateData,
 }
 
 #[derive(Debug, PartialEq)]
@@ -161,6 +221,22 @@ impl Ship {
 
         Ok(())
     }
+
+    pub async fn navigate_to(&mut self, waypoint_symbol: &str) -> Result<(), Error> {
+        let response: NavigateResponse = self
+            .client
+            .post_with_body(
+                &format!("my/ships/{}/navigate", self.symbol),
+                &("waypointSymbol", waypoint_symbol),
+                reqwest::StatusCode::OK,
+            )
+            .await?;
+
+        self.data.as_mut().unwrap().nav = response.data.nav;
+        self.data.as_mut().unwrap().fuel = response.data.fuel;
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -181,6 +257,8 @@ pub mod tests {
     use crate::faction::Factions;
     use crate::ship::registration::tests::*;
     use crate::string;
+    use crate::system::waypoint::WaypointType;
+    use pretty_assertions::assert_eq;
 
     pub fn some_ship() -> ShipData {
         ShipData {
@@ -241,14 +319,14 @@ pub mod tests {
                 route: Route {
                     destination: Location {
                         symbol: string!("X1-CB91-A1"),
-                        location_type: LocationType::Planet,
+                        location_type: WaypointType::Planet,
                         system_symbol: string!("X1-CB91"),
                         x: -18,
                         y: 15,
                     },
                     origin: Location {
                         symbol: string!("X1-CB91-A1"),
-                        location_type: LocationType::Planet,
+                        location_type: WaypointType::Planet,
                         system_symbol: string!("X1-CB91"),
                         x: -18,
                         y: 15,
@@ -287,6 +365,36 @@ pub mod tests {
                 }),
             },
         }
+    }
+
+    fn snake_ship_in_orbit() -> ShipData {
+        let mut ship = snake_ship();
+        ship.nav.status = ShipStatus::InOrbit;
+        ship
+    }
+
+    fn snake_ship_headed_to_a_waypoint() -> ShipData {
+        let mut ship = snake_ship_in_orbit();
+
+        ship.nav.waypoint_symbol = string!("X1-CB91-AA5Z");
+        ship.nav.status = ShipStatus::InTransit;
+        ship.nav.route.arrival = string!("2025-06-23T20:15:59.637Z");
+        ship.nav.route.departure_time = string!("2025-06-23T20:15:16.637Z");
+        ship.nav.route.destination = Location {
+            symbol: string!("X1-CB91-AA5Z"),
+            location_type: WaypointType::EngineeredAsteroid,
+            system_symbol: string!("X1-CB91"),
+            x: -9,
+            y: -24,
+        };
+
+        ship.fuel.current = 360;
+        ship.fuel.consumed = Some(FuelConsumed {
+            amount: 40,
+            timestamp: string!("2025-06-23T20:15:16.652Z"),
+        });
+
+        ship
     }
 
     #[tokio::test]
@@ -370,11 +478,7 @@ pub mod tests {
 
         let actual = ship;
 
-        let mut data = snake_ship();
-
-        data.nav.status = ShipStatus::InOrbit;
-
-        let expected = Ship::with_data(client.clone(), data);
+        let expected = Ship::with_data(client.clone(), snake_ship_in_orbit());
 
         assert_eq!(expected, actual);
     }
@@ -392,16 +496,37 @@ pub mod tests {
 
         let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
 
-        let mut data = snake_ship();
-        data.nav.status = ShipStatus::InOrbit;
-
-        let mut ship = Ship::with_data(client.clone(), data);
+        let mut ship = Ship::with_data(client.clone(), snake_ship_in_orbit());
 
         let _ = ship.dock().await;
 
         let actual = ship;
 
         let expected = Ship::with_data(client.clone(), snake_ship());
+
+        assert_eq!(expected, actual);
+    }
+
+    #[tokio::test]
+    async fn should_navigate_ship() {
+        let mock_server = MockServerBuilder::mock_once(
+            RequestMethod::Post,
+            "my/ships/SNAKE-1/navigate",
+            200,
+            None,
+            Some(&("waypointSymbol", "X1-CB91-AA5Z")),
+        )
+        .await;
+
+        let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
+
+        let mut ship = Ship::with_data(client.clone(), snake_ship_in_orbit());
+
+        let _ = ship.navigate_to("X1-CB91-AA5Z").await;
+
+        let actual = ship;
+
+        let expected = Ship::with_data(client.clone(), snake_ship_headed_to_a_waypoint());
 
         assert_eq!(expected, actual);
     }

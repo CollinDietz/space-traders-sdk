@@ -1,5 +1,7 @@
 use serde_derive::Deserialize;
 
+use crate::system::waypoint::WaypointType;
+
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Nav {
@@ -24,24 +26,10 @@ pub struct Route {
 pub struct Location {
     pub symbol: String,
     #[serde(rename = "type")]
-    pub location_type: LocationType,
+    pub location_type: WaypointType,
     pub system_symbol: String,
     pub x: i32,
     pub y: i32,
-}
-
-#[derive(Debug, Clone, PartialEq, Deserialize)]
-#[serde(rename_all = "UPPERCASE")]
-pub enum LocationType {
-    Planet,
-    GasGiant,
-    Moon,
-    OrbitalStation,
-    JumpGate,
-    AsteroidField,
-    Nebula,
-    DebrisField,
-    GravityWell,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -82,7 +70,7 @@ pub mod tests {
                 pub fn some_planet_location() -> Location {
                     Location {
                         symbol: string!("X1-RC42-A1"),
-                        location_type: LocationType::Planet,
+                        location_type: WaypointType::Planet,
                         system_symbol: string!("X1-RC42"),
                         x: -22,
                         y: -3,
@@ -109,7 +97,7 @@ pub mod tests {
                 pub fn some_moon_location() -> Location {
                     Location {
                         symbol: string!("X1-RC42-H53"),
-                        location_type: LocationType::Moon,
+                        location_type: WaypointType::Moon,
                         system_symbol: string!("X1-RC42"),
                         x: -9,
                         y: -45,

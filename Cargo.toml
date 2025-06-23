@@ -19,4 +19,5 @@ serde_repr = "0.1"
 
 [dev-dependencies]
 dotenv = "0.15.0"
+pretty_assertions = "1"
 mock_server = { path = "mock_server" }

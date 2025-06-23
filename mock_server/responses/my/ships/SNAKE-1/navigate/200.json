@@ -1,0 +1,44 @@
+{
+  "data": {
+    "nav": {
+      "systemSymbol": "X1-CB91",
+      "waypointSymbol": "X1-CB91-AA5Z",
+      "route": {
+        "destination": {
+          "symbol": "X1-CB91-AA5Z",
+          "type": "ENGINEERED_ASTEROID",
+          "systemSymbol": "X1-CB91",
+          "x": -9,
+          "y": -24
+        },
+        "origin": {
+          "symbol": "X1-CB91-A1",
+          "type": "PLANET",
+          "systemSymbol": "X1-CB91",
+          "x": -18,
+          "y": 15
+        },
+        "departureTime": "2025-06-23T20:15:16.637Z",
+        "arrival": "2025-06-23T20:15:59.637Z"
+      },
+      "status": "IN_TRANSIT",
+      "flightMode": "CRUISE"
+    },
+    "fuel": {
+      "current": 360,
+      "capacity": 400,
+      "consumed": {
+        "amount": 40,
+        "timestamp": "2025-06-23T20:15:16.652Z"
+      }
+    },
+    "events": [
+      {
+        "symbol": "COOLANT_SYSTEM_AGEING",
+        "component": "ENGINE",
+        "name": "Coolant System Ageing",
+        "description": "During routine operations, a decrease in coolant efficiency was noted by diagnostics, likely caused by improperly maintained coolant lines. Quick-sealant measures were applied to avert overheating and permanent damage."
+      }
+    ]
+  }
+}
