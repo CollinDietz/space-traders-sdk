@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use serde_derive::Deserialize;
+use serde_derive::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -159,6 +159,22 @@ struct ExtractionResponse {
     data: ExtractionData,
 }
 
+#[derive(Debug, PartialEq, Deserialize)]
+struct JettisonData {
+    cargo: Cargo,
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+struct JettisonResponse {
+    data: JettisonData,
+}
+
+#[derive(Serialize)]
+struct JettisonRequest {
+    pub symbol: TradeSymbol,
+    pub units: i32,
+}
+
 #[derive(Debug, PartialEq)]
 pub struct Ship {
     symbol: String,
@@ -279,11 +295,29 @@ impl Ship {
 
         Ok(response.data.extraction)
     }
+
+    pub async fn jettison(&mut self, symbol: TradeSymbol, units: i32) -> Result<(), Error> {
+        let request = JettisonRequest { symbol, units };
+
+        let response: JettisonResponse = self
+            .client
+            .post_with_body(
+                &format!("my/ships/{}/jettison", self.symbol),
+                &request,
+                reqwest::StatusCode::OK,
+            )
+            .await?;
+
+        self.data.as_mut().unwrap().cargo = response.data.cargo;
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
 pub mod tests {
     use mock_server::{MockServerBuilder, RequestMethod};
+    use serde_json::json;
 
     use super::cargo::tests::*;
     use super::cooldown::tests::*;
@@ -460,6 +494,12 @@ pub mod tests {
         ship
     }
 
+    fn snake_ship_with_no_cargo() -> ShipData {
+        let mut ship = snake_ship_after_extracting();
+        ship.cargo = some_cargo();
+        ship
+    }
+
     fn some_extraction() -> Extraction {
         Extraction {
             ship_symbol: string!("SNAKE-1"),
@@ -629,6 +669,30 @@ pub mod tests {
 
         assert_eq!(expected_ship, actual_ship);
         assert_eq!(expected_extraction, actual_extraction)
+    }
+
+    #[tokio::test]
+    async fn should_jettison_resources() {
+        let mock_server = MockServerBuilder::mock_once(
+            RequestMethod::Post,
+            "my/ships/SNAKE-1/jettison",
+            200,
+            None,
+            Some(&json!({"symbol": "ICE_WATER", "units": 4})),
+        )
+        .await;
+
+        let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
+
+        let mut ship = Ship::with_data(client.clone(), snake_ship_after_extracting());
+
+        let _ = ship.jettison(TradeSymbol::IceWater, 4).await.unwrap();
+
+        let actual_ship = ship;
+
+        let expected_ship = Ship::with_data(client.clone(), snake_ship_with_no_cargo());
+
+        assert_eq!(expected_ship, actual_ship);
     }
 
     #[test]

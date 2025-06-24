@@ -1,4 +1,4 @@
-use serde_derive::Deserialize;
+use serde_derive::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -17,7 +17,7 @@ pub struct InventoryItem {
     pub units: i32,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum TradeSymbol {
     PreciousStones,
