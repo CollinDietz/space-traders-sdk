@@ -1,0 +1,38 @@
+{
+  "data": {
+    "extraction": {
+      "shipSymbol": "SNAKE-1",
+      "yield": {
+        "symbol": "ICE_WATER",
+        "units": 4
+      }
+    },
+    "cooldown": {
+      "shipSymbol": "SNAKE-1",
+      "totalSeconds": 80,
+      "remainingSeconds": 79,
+      "expiration": "2025-06-24T14:04:10.244Z"
+    },
+    "cargo": {
+      "capacity": 40,
+      "units": 4,
+      "inventory": [
+        {
+          "symbol": "ICE_WATER",
+          "name": "Fresh Water",
+          "description": "High-quality fresh water, essential for life support and hydroponic agriculture.",
+          "units": 4
+        }
+      ]
+    },
+    "events": [
+      {
+        "symbol": "SOLAR_FLARE_INTERFERENCE",
+        "component": "REACTOR",
+        "name": "Solar Flare Interference with Reactor Operations",
+        "description": "An unexpected solar flare event coincided with extraction activities, causing widespread interference in reactor operations. The flare’s electromagnetic pulse temporarily disabled the reactor's safety controls, necessitating a manual reboot and realignment of the magnetic containment field."
+      }
+    ],
+    "modifiers": []
+  }
+}

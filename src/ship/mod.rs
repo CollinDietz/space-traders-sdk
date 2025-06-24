@@ -132,6 +132,33 @@ struct NavigateResponse {
     data: NavigateData,
 }
 
+#[derive(Debug, PartialEq, Deserialize)]
+struct ExtractionYield {
+    units: u32,
+    symbol: TradeSymbol,
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Extraction {
+    ship_symbol: String,
+    r#yield: ExtractionYield,
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+struct ExtractionData {
+    extraction: Extraction,
+    cooldown: Cooldown,
+    cargo: Cargo,
+    // events: Vec<ShipConditionEvent>, // TODO: something with this
+    // modifiers: Vec<WaypointModifier>, // TODO: something with this
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+struct ExtractionResponse {
+    data: ExtractionData,
+}
+
 #[derive(Debug, PartialEq)]
 pub struct Ship {
     symbol: String,
@@ -236,6 +263,21 @@ impl Ship {
         self.data.as_mut().unwrap().fuel = response.data.fuel;
 
         Ok(())
+    }
+
+    pub async fn extract(&mut self) -> Result<Extraction, Error> {
+        let response: ExtractionResponse = self
+            .client
+            .post(
+                &format!("my/ships/{}/extract", self.symbol),
+                reqwest::StatusCode::CREATED,
+            )
+            .await?;
+
+        self.data.as_mut().unwrap().cooldown = response.data.cooldown;
+        self.data.as_mut().unwrap().cargo = response.data.cargo;
+
+        Ok(response.data.extraction)
     }
 }
 
@@ -397,6 +439,37 @@ pub mod tests {
         ship
     }
 
+    fn snake_ship_after_extracting() -> ShipData {
+        let mut ship = snake_ship();
+        ship.cooldown = Cooldown {
+            ship_symbol: string!("SNAKE-1"),
+            total_seconds: 80,
+            remaining_seconds: 79,
+            expiration: Some(string!("2025-06-24T14:04:10.244Z")),
+        };
+        ship.cargo = Cargo {
+            capacity: 40,
+            units: 4,
+            inventory: vec![InventoryItem {
+                symbol: TradeSymbol::IceWater,
+                name: string!("Fresh Water"),
+                description: string!("High-quality fresh water, essential for life support and hydroponic agriculture."),
+                units: 4,
+            }],
+        };
+        ship
+    }
+
+    fn some_extraction() -> Extraction {
+        Extraction {
+            ship_symbol: string!("SNAKE-1"),
+            r#yield: ExtractionYield {
+                units: 4,
+                symbol: TradeSymbol::IceWater,
+            },
+        }
+    }
+
     #[tokio::test]
     async fn should_get_ship_data() {
         let mock_server = MockServerBuilder::mock_once(
@@ -529,6 +602,33 @@ pub mod tests {
         let expected = Ship::with_data(client.clone(), snake_ship_headed_to_a_waypoint());
 
         assert_eq!(expected, actual);
+    }
+
+    #[tokio::test]
+    async fn should_extract_resources() {
+        let mock_server = MockServerBuilder::mock_once(
+            RequestMethod::Post,
+            "my/ships/SNAKE-1/extract",
+            201,
+            None,
+            None::<&()>,
+        )
+        .await;
+
+        let client = Arc::new(SpaceTradersClient::with_url(&mock_server.url(), None));
+
+        let mut ship = Ship::with_data(client.clone(), snake_ship());
+
+        let expected_extraction = ship.extract().await.unwrap();
+
+        let actual_ship = ship;
+
+        let expected_ship = Ship::with_data(client.clone(), snake_ship_after_extracting());
+
+        let actual_extraction = some_extraction();
+
+        assert_eq!(expected_ship, actual_ship);
+        assert_eq!(expected_extraction, actual_extraction)
     }
 
     #[test]
